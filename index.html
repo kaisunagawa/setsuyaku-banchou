@@ -367,8 +367,15 @@ const yen  = n => '¥' + Math.round(Math.abs(Number(n) || 0)).toLocaleString('ja
 const syen = n => (Number(n) < 0 ? '−' : '') + yen(n);
 const esc  = s => String(s == null ? '' : s).replace(/[&<>"']/g,
   c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const md   = d => Number(d.slice(5,7)) + '月' + Number(d.slice(8,10)) + '日';
-const md0  = d => d.slice(5,7) + '月' + d.slice(8,10) + '日';
+/* 日付は空だったり欠けていたりする。必ずこれを通してから日付として扱うこと。
+   素で Date に渡すと "Invalid time value" で画面が真っ白になる。 */
+const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || ''));
+/* toISOString はUTCなので、日本時間の朝9時前は前日になってしまう。日付は必ずこれで作る。 */
+const ymd = (dt = new Date()) => [dt.getFullYear(),
+  String(dt.getMonth() + 1).padStart(2, '0'),
+  String(dt.getDate()).padStart(2, '0')].join('-');
+const md   = d => isDate(d) ? Number(d.slice(5,7)) + '月' + Number(d.slice(8,10)) + '日' : '';
+const md0  = d => isDate(d) ? d.slice(5,7) + '月' + d.slice(8,10) + '日' : '';
 
 const P = {
   bang:'<path d="M12 6v7M12 17v.1"/>',
@@ -538,8 +545,10 @@ function actionCards(d) {
 
   if (d.funds.sub > 0) {
     const need = short < 0 ? Math.min(Math.abs(short), d.funds.sub) : d.funds.sub;
-    const t = new Date(d.funds.due.replace(/-/g, '/')); t.setDate(t.getDate() - 1);
-    const td = t.toISOString().slice(0, 10);
+    // 引落日が無いこともあるので、その場合は「明日」を振替日にする
+    const base = isDate(d.funds.due) ? new Date(d.funds.due.replace(/-/g, '/')) : new Date();
+    base.setDate(base.getDate() + (isDate(d.funds.due) ? -1 : 1));
+    const td = ymd(base);
     out.push(card('transfer|個人口座からの振替', 'blue', 'bank',
       `${esc(d.mode.sub)}の ${yen(need)} を<br>${esc(d.mode.main)}へ振り替え`,
       `引落の前日（${esc(td)}）に振り替える想定です`,
@@ -560,8 +569,9 @@ function actionCards(d) {
       `data-act="stopfix" data-label="${esc(p.name)}" data-amount="${p.monthly}"`));
   });
 
+  if (d.funds.card > 0 && isDate(d.funds.due))
   out.push(`<div class="ac"><div class="acH">${sq('card','purple')}<div style="min-width:0">
-      <div class="acT">Amexの支払い方法を相談</div>
+      <div class="acT">カードの支払い方法を相談</div>
       <div class="acD">引落 ${esc(d.funds.due)}／${yen(d.funds.card)}。分割や支払日の変更を相談します</div>
     </div></div>
     <div class="acF"><div><div class="acE">想定効果</div><div class="acA">金額は変わりません</div></div>
@@ -577,18 +587,29 @@ function render() {
   const short = d.funds.short, ng = short < 0;
 
   /* --- 危機カード --- */
+  /* ★カード引落日は無いことがある（その月に請求が無い・導入直後）。
+     日付が空のまま日付処理に渡すと画面が真っ白になる（実際になった）。 */
+  const due = isDate(d.funds.due) ? d.funds.due : '';
+  const negDay = d.forecast.firstNeg && isDate(d.forecast.firstNeg.date)
+    ? d.forecast.firstNeg.date : '';
+  const day = due || negDay;
+
+  const ttl = ng
+    ? (day ? `${md0(day)}に、<br>${yen(short)}不足します。` : `${yen(short)}足りません。`)
+    : (due ? `${md0(due)}の引落後も<br>${yen(short)}残ります。` : `いまのところ<br>支払いは間に合っています。`);
+
   const crisis = `<div class="crisis ${ng ? 'ng' : 'ok'} sect" data-tab="home">
     <img class="msc" src="assets/mascot-${ng ? 'warn' : 'ok'}.png" alt="" />
     <div class="crH">
       <div class="bang"><svg viewBox="0 0 24 24">${ng ? P.bang : P.check}</svg></div>
-      <div class="ttl">${ng ? `${md0(d.funds.due)}に、<br>${yen(short)}不足します。`
-                            : `${md0(d.funds.due)}の引落後も<br>${yen(short)}残ります。`}</div>
+      <div class="ttl">${ttl}</div>
     </div>
-    ${ng ? `<div class="crSub">${md0(d.funds.due)}までに${yen(short)}を確保してください。</div>` : ''}
+    ${ng && day ? `<div class="crSub">${md0(day)}までに${yen(short)}を確保してください。</div>` : ''}
     <div class="rows">
       <div class="row"><span class="rowL">${esc(d.mode.main)}</span><span class="rowV">${yen(d.funds.main)}</span></div>
-      <div class="row"><span class="rowL">次回のカード引落（${esc(d.funds.due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>
-      <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : '引落後の残高'}</span><span class="rowV">${syen(short)}</span></div>
+      ${due ? `<div class="row"><span class="rowL">次回のカード引落（${esc(due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>`
+            : `<div class="row"><span class="rowL">次回のカード引落</span><span class="rowV">予定なし</span></div>`}
+      <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : (due ? '引落後の残高' : '見込み残高')}</span><span class="rowV">${syen(short)}</span></div>
     </div>
     <button class="cta" data-go="act">対策を確認${arw()}</button>
   </div>`;
@@ -739,7 +760,7 @@ function showTab(t) {
    GAS側に変な値が入ると、直すのにスプレッドシートを開くことになるため。 */
 function askIncome() {
   const today = new Date();
-  const d0 = new Date(today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  const d0 = ymd(new Date(today.getTime() + 7 * 86400000));
   const el = document.createElement('div');
   el.className = 'sheet';
   el.innerHTML = `<div class="in">
@@ -774,7 +795,7 @@ function askIncome() {
       if (!amt) return bad('金額を入れてください。');
       if (amt > 100000000) return bad('金額が大きすぎます。桁を確かめてください。');
       if (!/^\d{4}-\d{2}-\d{2}$/.test(dt)) return bad('入金予定日を選んでください。');
-      if (dt < new Date().toISOString().slice(0, 10)) return bad('過去の日付は登録できません。');
+      if (dt < ymd()) return bad('過去の日付は登録できません。');
       close({ amount: String(amt), date: dt,
               label: document.getElementById('ilbl').value.trim() || '入金予定' });
     };
@@ -899,9 +920,29 @@ document.addEventListener('click', async ev => {
     if (!v) return;
     Object.assign(p, v);
   }
-  if (el.tagName === 'BUTTON') { el.disabled = true; el.style.opacity = '.5'; el.textContent = '反映中…'; }
-  try { await api('sim', { act: a, payload: p }); await load(); }
-  catch (e) { alert('エラー: ' + e.message); }
+  const was = el.tagName === 'BUTTON' ? el.innerHTML : null;
+  if (was !== null) { el.disabled = true; el.style.opacity = '.5'; el.textContent = '反映中…'; }
+  try {
+    // 通信は取りこぼすことがある。ここも黙って2回まで取り直す
+    let ok, err;
+    for (let i = 0; i < 2; i++) {
+      try { ok = await api('sim', { act: a, payload: p }); break; }
+      catch (e2) { err = e2; await new Promise(r => setTimeout(r, 1200)); }
+    }
+    if (!ok) throw err || new Error('反映できませんでした');
+    if (!ok.ok) throw new Error(ok.error || '反映できませんでした');
+    await load();
+  } catch (e) {
+    /* ★失敗したらボタンを必ず元に戻すこと。
+       戻さないと「反映中…」のまま押せなくなり、再読み込みするしかなくなる。 */
+    if (was !== null) { el.disabled = false; el.style.opacity = ''; el.innerHTML = was; }
+    const m = document.getElementById('msg');
+    if (m) {
+      m.innerHTML = `<div class="err">反映できませんでした：${esc(e.message)}
+        <button data-act="reload">もう一度試す</button></div>`;
+      m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
 });
 
 /* ---------- 起動 ---------- */
