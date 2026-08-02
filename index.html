@@ -318,7 +318,7 @@ td.l.soon{color:var(--red);font-weight:900}
   .ttl{font-size:27px}
   .ttl .amt{font-size:clamp(52px,4.6vw,74px)}
   .ttl .tail{font-size:23px}
-  .crSub{font-size:14px}
+  .crSub{font-size:14px;max-width:34em}
   .msc{width:150px;right:26px;top:30px}
   .eyebrow,.ttl,.crSub{padding-right:180px}
   .rows{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.14)}
@@ -534,28 +534,31 @@ function chart(fc) {
   g += `<text x="3" y="${PT-9}" font-size="${FS}" fill="#94A3B8">(円)</text>`;
   for (let v = lo; v <= hi + step/2; v += step) {
     const y = Y(v);
-    g += `<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="${Math.abs(v)<step/2?'#CBD5E1':'#F0F3F7'}"/>`;
-    g += `<text x="${PL-7}" y="${(y+FS*0.36).toFixed(1)}" text-anchor="end" font-size="${FS}" fill="${v<0?'#E8192C':'#94A3B8'}">${man(v)}</text>`;
+    g += `<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="${Math.abs(v)<step/2?'#0B1622':'#EFF2F5'}" stroke-width="${Math.abs(v)<step/2?1.4:1}"/>`;
+    g += `<text x="${PL-7}" y="${(y+FS*0.36).toFixed(1)}" text-anchor="end" font-size="${FS}" fill="${v<0?'#D80B2B':'#94A2B1'}">${man(v)}</text>`;
   }
-  g += `<path d="${area}" fill="#2563EB" opacity=".08"/>`;
-  g += `<path d="${line}" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linejoin="round"/>`;
+  // 0円より下＝支払えない領域。色で意味を持たせる（飾りではない）
+  const zeroY = Y(0);
+  if (zeroY < H - PB) g += `<rect x="${PL}" y="${zeroY.toFixed(1)}" width="${W-PL-PR}" height="${(H-PB-zeroY).toFixed(1)}" fill="#D80B2B" opacity=".07"/>`;
+  g += `<path d="${area}" fill="#0B1622" opacity=".06"/>`;
+  g += `<path d="${line}" fill="none" stroke="#0B1622" stroke-width="2.4" stroke-linejoin="round"/>`;
 
   if (fc.firstNeg) {
     const ni = pts.findIndex(p => p[0] === fc.firstNeg.date);
     if (ni >= 0) {
       const cx = X(ni), cy = Y(pts[ni][1]);
-      g += `<line x1="${cx.toFixed(1)}" y1="${PT}" x2="${cx.toFixed(1)}" y2="${H-PB}" stroke="#E8192C" stroke-width="1.3" opacity=".55"/>`;
-      g += `<line x1="${PL}" y1="${cy.toFixed(1)}" x2="${W-PR}" y2="${cy.toFixed(1)}" stroke="#E8192C" stroke-width="1.3" stroke-dasharray="6 4" opacity=".55"/>`;
-      g += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" fill="#fff" stroke="#E8192C" stroke-width="3"/>`;
-      const bw = narrow ? 128 : 132, bh = narrow ? 46 : 42;
-      // 不足地点が左寄りなら吹き出しは右へ。線の上に重ねない
+      g += `<line x1="${cx.toFixed(1)}" y1="${PT}" x2="${cx.toFixed(1)}" y2="${H-PB}" stroke="#D80B2B" stroke-width="1.2" opacity=".5"/>`;
+      g += `<line x1="${PL}" y1="${cy.toFixed(1)}" x2="${W-PR}" y2="${cy.toFixed(1)}" stroke="#D80B2B" stroke-width="1.2" stroke-dasharray="5 4" opacity=".5"/>`;
+      g += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" fill="#FFBF24" stroke="#0B1622" stroke-width="2.4"/>`;
+      const bw = narrow ? 132 : 136, bh = narrow ? 44 : 40;
       const bx = cx < (PL + W - PR) / 2
-        ? Math.min(W - PR - bw, cx + 14)
-        : Math.max(PL, cx - bw - 14);
-      const by = Math.max(PT, cy - bh - 22);
-      g += `<path d="M${bx} ${by+9}a9 9 0 019-9h${bw-18}a9 9 0 019 9v${bh-18}a9 9 0 01-9 9h-${bw-18-16}l-8 11-3-11h-2a9 9 0 01-9-9z" fill="#E8192C"/>`;
-      g += `<text x="${bx+bw/2}" y="${by+(narrow?18:17)}" text-anchor="middle" font-size="${FB-2}" font-weight="700" fill="#fff">${esc(fc.firstNeg.date.slice(5).replace('-','/'))}に不足</text>`;
-      g += `<text x="${bx+bw/2}" y="${by+(narrow?37:33)}" text-anchor="middle" font-size="${FB}" font-weight="700" fill="#fff">−${yen(fc.firstNeg.bal).slice(1)}</text>`;
+        ? Math.min(W - PR - bw, cx + 16)
+        : Math.max(PL, cx - bw - 16);
+      const by = Math.max(PT, cy - bh - 20);
+      g += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" fill="#0B1622"/>`;
+      g += `<rect x="${bx}" y="${by}" width="${bw}" height="3" fill="#FFBF24"/>`;
+      g += `<text x="${bx+bw/2}" y="${by+(narrow?20:19)}" text-anchor="middle" font-size="${FB-2}" font-weight="700" fill="#94A2B1">${esc(fc.firstNeg.date.slice(5).replace('-','/'))} に不足</text>`;
+      g += `<text x="${bx+bw/2}" y="${by+(narrow?38:35)}" text-anchor="middle" font-size="${FB+1}" font-weight="700" fill="#FF5064">−${yen(fc.firstNeg.bal).slice(1)}</text>`;
     }
   }
   const every = Math.max(1, Math.round(pts.length / (narrow ? 4 : 7)));
@@ -692,7 +695,8 @@ function render() {
     <div class="pgT">将来残高の見通し</div>
     <div class="pgS">平均月間入金 ${yen(d.avg.inc)} ／ 平均月間支出 ${yen(d.avg.exp)}<br>
       起点は${esc(d.mode.main)} ${yen(d.forecast.start)}です。</div>
-    <div class="card"><div class="fcw">${chart(d.forecast)}<div class="ms">${ms}</div></div>
+    <div class="fcw">${chart(d.forecast)}<div class="ms">${ms}</div></div>
+    <div>
       <div class="foot">${d.forecast.incomeCount
         ? `登録済みの入金予定 ${d.forecast.incomeCount} 件を反映しています。`
         : '<b style="color:#E8192C">入金予定が登録されていないため、実際より厳しい見通しになっています。</b>'}
