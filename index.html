@@ -739,13 +739,13 @@ function render() {
   const upc = `<div class="sect" data-tab="tx">
     <div class="pgT">これから30日に出ていくお金</div>
     <div class="pgS">${d.upcoming.length}件 ／ ${yen(upSum)}</div>
-    <div class="card"><table><tr><th>日付</th><th>内容</th><th style="text-align:right">金額</th><th style="text-align:right">期限</th></tr>
+    <div><table><tr><th>日付</th><th>内容</th><th style="text-align:right">金額</th><th style="text-align:right">期限</th></tr>
       ${d.upcoming.map(u => `<tr><td class="d">${esc(u.date.slice(5))}</td><td class="n">${esc(u.name)}</td>
-        <td class="a">${yen(u.amount)}</td><td class="l ${/今日|1日/.test(u.left) ? 'soon' : ''}">${esc(u.left)}</td></tr>`).join('')}
+        <td class="a">${yen(u.amount)}</td><td class="l ${/^(今日|あと1日)$/.test(String(u.left).trim()) ? 'soon' : ''}">${esc(u.left)}</td></tr>`).join('')}
     </table></div>
     <div class="cardT" style="margin:20px 0 8px">直近の取引</div>
     <div class="pgS">サブスク・固定費（月）${yen(d.month.subM)}</div>
-    <div class="card"><table>
+    <div><table>
       ${d.recent.map(r => `<tr><td class="d">${esc(r.date.slice(5))}</td><td class="n">${esc(r.name)}</td>
         <td class="a ${r.amount >= 0 ? 'pos' : ''}">${r.amount >= 0 ? '+' : '−'}${yen(r.amount).slice(1)}</td></tr>`).join('')}
     </table></div></div>`;
