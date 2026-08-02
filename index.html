@@ -174,6 +174,42 @@ td.l.soon{color:var(--red);font-weight:700}
 .gate input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14)}
 .gate button{width:100%;padding:14px;border:0;border-radius:11px;background:var(--blue);
   color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
+/* ---- スプラッシュ（読み込み中） ----
+   静止画を1枚貼るのではなく、パーツを分けて少しずつ動かしている。
+   あとで動画に差し替えたくなったら .spMascot の img を video に替えるだけでよい。 */
+.sp{position:fixed;inset:0;background:#fff;z-index:60;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding-top:11vh;animation:spIn .5s ease-out}
+.sp.out{animation:spOut .45s ease-in forwards;pointer-events:none}
+@keyframes spIn{from{opacity:0}to{opacity:1}}
+@keyframes spOut{to{opacity:0;visibility:hidden}}
+.spWave{position:absolute;left:0;right:0;width:100%;pointer-events:none}
+.spWave.t{top:0}.spWave.b{bottom:0}
+.spSym{width:112px;height:auto;animation:pop .7s cubic-bezier(.2,1.5,.4,1) both}
+.spName{font-size:34px;font-weight:700;letter-spacing:.01em;margin-top:12px;
+  animation:up .6s .12s ease-out both}
+.spName i{font-style:normal;color:var(--green)}
+.spTag{font-size:14px;font-weight:700;color:#334155;margin-top:7px;
+  animation:up .6s .22s ease-out both}
+.spMascot{position:absolute;bottom:0;width:230px;max-width:62vw;height:auto;
+  animation:up .7s .3s ease-out both, float 3.4s 1s ease-in-out infinite}
+.spBadges{position:absolute;left:16px;bottom:24vh;display:flex;flex-direction:column;gap:14px}
+.spB{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid var(--line);
+  box-shadow:0 3px 10px rgba(13,27,42,.08);display:flex;align-items:center;justify-content:center;
+  animation:up .5s ease-out both}
+.spB:nth-child(1){animation-delay:.45s}
+.spB:nth-child(2){animation-delay:.6s}
+.spB:nth-child(3){animation-delay:.75s}
+.spB svg{width:21px;height:21px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.spMsg{margin-top:26px;font-size:11.5px;color:var(--mute);
+  animation:blink 1.6s ease-in-out infinite}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-9px) rotate(-1.1deg)}}
+@keyframes blink{0%,100%{opacity:.45}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+  .sp *{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
 .load{text-align:center;padding:26vh 20px;color:var(--mute);font-size:13px}
 .load img{width:64px;border-radius:15px;margin-bottom:15px}
 .err{background:var(--redL);border:1px solid var(--redB);color:#9F1239;
@@ -219,9 +255,28 @@ td.l.soon{color:var(--red);font-weight:700}
 </style>
 </head>
 <body>
-<div class="wrap" id="app">
-  <div class="load"><img src="icon-192.png" alt="" /><div>読み込んでいます…</div></div>
+<div class="sp" id="sp">
+  <svg class="spWave t" viewBox="0 0 390 150" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 0h390v78c-70 26-140-14-210 6S60 118 0 96z" fill="#16A34A" opacity=".07"/>
+    <path d="M0 0h390v46c-64 30-138-6-206 12S54 82 0 62z" fill="#16A34A" opacity=".05"/>
+  </svg>
+  <svg class="spWave b" viewBox="0 0 390 210" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 210V96c72-30 140 12 208-8s110-30 182-6v128z" fill="#16A34A" opacity=".10"/>
+    <path d="M0 210V140c78-26 138 10 206-8s106-22 184 2v76z" fill="#16A34A" opacity=".16"/>
+  </svg>
+  <img class="spSym" src="assets/symbol.png" alt="" />
+  <div class="spName">せつやく<i>番長</i></div>
+  <div class="spTag">資金のピンチは、俺が止める。</div>
+  <div class="spBadges">
+    <span class="spB"><svg viewBox="0 0 24 24" stroke="#16A34A"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+    <span class="spB"><svg viewBox="0 0 24 24" stroke="#FF6B8A"><path d="M3.5 12.5c0-3.6 3.4-6 7.5-6 1.3 0 2.5.2 3.6.7l2.6-1.6-.5 3a5.9 5.9 0 012 3.2l2.3.8-1.6 2.5v2.4h-3l-1 1.6h-2.6l-.9-1.4a12 12 0 01-2.6 0l-.9 1.4H5.9l-1-1.7c-.9-1.2-1.4-2.7-1.4-4.9z"/><circle cx="8" cy="12" r="1"/></svg></span>
+    <span class="spB"><svg viewBox="0 0 24 24" stroke="#16A34A"><path d="M4 19V11M9.5 19V5M15 19v-6M20.5 19V8"/></svg></span>
+  </div>
+  <div class="spMsg" id="spMsg">読み込んでいます…</div>
+  <img class="spMascot" src="assets/mascot-stand.png" alt="" />
 </div>
+
+<div class="wrap" id="app"></div>
 
 <script>
 /* ============================================================
@@ -273,6 +328,17 @@ const arw = () => `<svg viewBox="0 0 24 24">${P.arrow}</svg>`;
    JSONP（scriptタグ）で GAS を呼ぶ。
    ★fetch の POST は使わない。GAS のリダイレクトの都合で JSON ではなく
      HTML のエラーページが返ることがある（実際に踏んだ）。 */
+/* ---------- スプラッシュを閉じる ---------- */
+const SP_AT = Date.now();
+function hideSp() {
+  const sp = document.getElementById('sp');
+  if (!sp || sp.classList.contains('out')) return;
+  setTimeout(() => {
+    sp.classList.add('out');
+    setTimeout(() => sp.remove(), 500);
+  }, Math.max(0, 1100 - (Date.now() - SP_AT)));   // 一瞬で消えるとチラつくので最低1.1秒は出す
+}
+
 let JN = 0;
 function api(action, params = {}) {
   return new Promise((resolve, reject) => {
@@ -394,6 +460,7 @@ function actionCards(d) {
 
 /* ---------- 画面 ---------- */
 function render() {
+  hideSp();
   const d = DATA;
   const short = d.funds.short, ng = short < 0;
 
@@ -558,6 +625,7 @@ function showTab(t) {
 
 /* ---------- 合言葉 ---------- */
 function askKey(msg) {
+  hideSp();
   document.getElementById('app').innerHTML = `
   <div class="gate">
     <img src="icon-192.png" alt="" />
@@ -627,6 +695,7 @@ async function load() {
   } catch (e) {
     const m = String(e.message || '');
     if (/合言葉/.test(m)) { localStorage.removeItem('banchou_key'); askKey('合言葉が違います。もう一度入れてください。'); return; }
+    hideSp();
     document.getElementById('app').innerHTML =
       `<div class="err"><b>データを取得できませんでした。</b><br>${esc(m)}</div>`;
   }
