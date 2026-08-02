@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>せつやく番長</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="せつやく番長" />
+<meta name="theme-color" content="#16A34A" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2A; --green:#16A34A; --pink:#FF6B8A; --bg:#F1F5F9;
+  --gray:#94A3B8; --line:#EDF1F5; --gold:#FBBF24; --mint:#A7F3D0;
+}
+body{font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;
+  background:var(--bg);color:var(--navy);-webkit-font-smoothing:antialiased;
+  padding:14px 14px calc(78px + env(safe-area-inset-bottom));}
+.wrap{max-width:560px;margin:0 auto}
+
+/* ---- トップバー ---- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:40px;height:40px;border-radius:9px}
+h1{font-size:17px;font-weight:700;letter-spacing:.02em}
+.tag{color:var(--green);font-size:11px;font-weight:700;margin-top:2px}
+.topR{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.upd{font-size:11px;color:var(--gray)}
+.trust{font-size:11px;padding:5px 10px;border-radius:99px;border:1px solid var(--line);background:#fff}
+.trust.高{border-color:var(--mint);background:#F0FDF4;color:#15803D}
+.trust.中{border-color:#FDE68A;background:#FFFBEB;color:#B45309}
+.trust.低{border-color:#FECDD3;background:#FFF1F2;color:#B02A37}
+
+/* ---- カード ---- */
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:12px;
+  box-shadow:0 1px 2px rgba(13,27,42,.04),0 4px 14px rgba(13,27,42,.045)}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;
+  border-radius:11px;background:#EAF7EF;color:var(--green);flex:0 0 auto}
+.ib svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ib.pink{background:#FFE9EE;color:#E11D48}.ib.navy{background:#EAEFF5;color:var(--navy)}
+.ib.gold{background:#FEF6E0;color:#B45309}
+.lbl{font-size:11px;color:var(--gray)}
+.lbl.big{font-size:15px;font-weight:700;color:var(--navy)}
+.val{font-size:26px;font-weight:700;margin-top:2px}
+.val.sm{font-size:19px;color:#334155}
+.note{font-size:10px;color:var(--gray);margin-top:5px;line-height:1.6}
+.plus{color:var(--green)}.minus{color:var(--pink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid .val{font-size:19px}
+.sep{height:1px;background:var(--line);margin:12px 0 10px}
+.li{font-size:12px;color:#334155;padding:3px 0 3px 12px;position:relative}
+.li:before{content:"・";position:absolute;left:0;color:var(--gray)}
+
+/* ---- 危機カード ---- */
+.crisis{position:relative;padding:18px 112px 16px 18px;min-height:160px}
+.crisis.ng{background:#FFF1F4;border-color:var(--pink)}
+.crisis.ok{background:#F0FDF4;border-color:var(--mint)}
+.crH{display:flex;gap:12px;align-items:flex-start}
+.alarm{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.alarm svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.crisis.ng .alarm{background:#FFE1E7;color:#E11D48}
+.crisis.ok .alarm{background:#DCFCE7;color:#15803D}
+.ttl{font-size:19px;font-weight:700;line-height:1.35}
+.crisis.ng .ttl{color:#B02A37}.crisis.ok .ttl{color:#15803D}
+.sub2{font-size:13px;font-weight:700;margin-top:4px}
+.mtRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:1px;
+  background:var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
+.mt{background:#fff;padding:9px 12px}
+.mtL{font-size:10px;color:var(--gray);line-height:1.35}
+.mtV{font-size:16px;font-weight:700;margin-top:2px}
+.muted{color:var(--gray);font-weight:400}
+.crSide{position:absolute;right:6px;bottom:6px;width:98px;text-align:center}
+.msc{width:auto;max-width:96px;max-height:112px;display:block;margin:0 auto}
+.bub{display:none}
+
+/* ---- アクション ---- */
+.act{border-left:4px solid var(--pink)}
+.stp{margin-bottom:10px}.stp:last-child{margin-bottom:0}
+.stpH{font-size:12px;font-weight:700;margin-bottom:4px}
+.ac{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;background:#FCFDFE}
+.ac.on{border-color:var(--green);background:#F0FDF4}
+.acT{font-size:13px;font-weight:700;margin-bottom:3px}
+.chip{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:99px;background:var(--green);color:#fff;font-size:10px;vertical-align:middle}
+.simres{margin-top:10px;padding:11px 13px;border-radius:10px;font-size:13px}
+.simres.ok{background:#DCFCE7;color:#14532D}.simres.ng{background:#FFE4E9;color:#9F1239}
+
+/* ---- ボタン ---- */
+button{font-family:inherit;width:100%;padding:15px;border:0;border-radius:14px;background:var(--green);
+  color:#fff;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:8px;box-shadow:0 2px 8px rgba(22,163,74,.28)}
+button:disabled{opacity:.5;box-shadow:none;cursor:default}
+button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+button.mini{width:auto;padding:7px 14px;font-size:12px;margin-top:7px;margin-right:6px;border-radius:8px;box-shadow:none;display:inline-flex}
+button.gray{background:#E2E8F0;color:#334155}
+button.top{width:auto;padding:11px 16px;font-size:13px;border-radius:12px}
+
+/* ---- 表 ---- */
+table{width:100%;border-collapse:collapse;font-size:12px}
+td{padding:7px 4px;border-bottom:1px solid var(--bg);white-space:nowrap}
+td:first-child{color:var(--gray)}
+td:last-child{text-align:right;font-weight:700}
+td.ago{text-align:right;color:var(--gray);font-weight:400;width:60px}
+
+/* ---- グラフ ---- */
+.chart{width:100%;height:auto;display:block;margin:4px 0 2px}
+.msw{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.msb{border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center}
+.msT{font-size:11px;font-weight:700}.msD{font-size:10px;color:var(--gray);margin:1px 0 3px}
+.msV{font-size:14px;font-weight:700}
+
+/* ---- タブ ---- */
+.tabs{display:flex;position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #E2E8F0;
+  z-index:9;padding:4px 0 calc(6px + env(safe-area-inset-bottom))}
+.tb{flex:1;text-align:center;font-size:10px;color:var(--gray);padding:4px 0;cursor:pointer;border:0;background:none;
+  display:block;width:auto;box-shadow:none;font-weight:400}
+.tb svg{width:20px;height:20px;display:block;margin:0 auto 2px;stroke:currentColor;fill:none;stroke-width:1.9}
+.tb.on{color:var(--green);font-weight:700}
+
+/* ---- 読み込み中 ---- */
+.load{text-align:center;padding:60px 20px;color:var(--gray);font-size:13px}
+.load img{width:72px;opacity:.85;margin-bottom:14px}
+.err{background:#FFE4E9;color:#9F1239;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.7}
+
+@media(min-width:900px){
+  body{padding:28px 24px 60px}
+  .wrap{max-width:1120px}
+  .brand img{width:52px;height:52px;border-radius:12px}
+  h1{font-size:23px}.tag{font-size:13px}
+  .card{padding:18px 20px;margin-bottom:14px}
+  .lbl{font-size:12px}
+  .crisis{padding:22px 136px 20px 22px;min-height:190px}
+  .crSide{width:120px;right:10px;bottom:10px}
+  .msc{max-width:120px;max-height:136px}
+  .ttl{font-size:clamp(20px,2.2vw,27px)}
+  .alarm{width:52px;height:52px;border-radius:16px}.alarm svg{width:28px;height:28px}
+  .mtRow{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+  .mtV{font-size:18px}.mtL{font-size:11px}
+  .msw{grid-template-columns:1fr;margin-top:0}
+  .msb{text-align:left;padding:10px 12px}.msV{font-size:17px}
+  .fcw{display:grid;grid-template-columns:1fr 190px;gap:14px;align-items:start}
+  table{font-size:13px}td{padding:9px 6px}
+  .tabs{display:none}
+  /* PC ではタブで隠さない。display は showTab() が空文字に戻すので
+     ここで !important を書くと .crisis のグリッドを潰してしまう（実際に潰れた） */
+}
+@media(min-width:1100px){
+  .cols{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;align-items:start}
+  .crisis{display:grid;grid-template-columns:1fr 168px;gap:16px;align-items:end;padding:22px;min-height:214px}
+  .crMain{min-width:0}
+  .crSide{position:static;width:auto;padding-bottom:2px}
+  .msc{max-width:100%;max-height:180px}
+  .bub{display:block;background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:9px 11px;
+    margin:0 0 8px;font-size:12px;font-weight:700;line-height:1.5}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="load">
+    <img src="assets/logo.png" alt="" />
+    <div>読み込んでいます…</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   せつやく番長 ｜ 画面
+   データはすべて GAS の JSON API から取る。この画面は計算しない。
+   （計算はスプレッドシート側にあり、税理士パックや試算表と同じ値を使う）
+   ============================================================ */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyAbsZDTQ-T1PFfaep0yO9BY3TbPD9ArQL2MpX9w0JQJFkx4Y2GhYr145_RHo_7WAUL/exec';
+
+/* 合言葉は ?k= で渡すか、一度入れたら端末に覚えさせる */
+const qs = new URLSearchParams(location.search);
+if (qs.get('k')) localStorage.setItem('banchou_key', qs.get('k'));
+const KEY = localStorage.getItem('banchou_key') || '';
+
+let DATA = null, TAB = 'home', BUSY = false;
+
+const yen = n => '¥' + Math.round(Math.abs(Number(n) || 0)).toLocaleString('ja-JP');
+const sign = n => (Number(n) < 0 ? '−' : '');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const md = d => String(Number(d.slice(5,7))) + '月' + String(Number(d.slice(8,10))) + '日';
+
+const ICON = {
+  shield:'<path d="M12 3l7 3v5c0 4.4-2.9 8.3-7 9.5C7.9 19.3 5 15.4 5 11V6l7-3z"/>',
+  wallet:'<path d="M3 7h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7zm0 0l2.5-3H16"/><circle cx="16.5" cy="13" r="1.3"/>',
+  chart:'<path d="M4 19V10M9.5 19V5M15 19v-6M20.5 19v-9"/>',
+  cal:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  alert:'<path d="M12 4l9 15.5H3L12 4z"/><path d="M12 10v4M12 17.2v.1"/>',
+  bolt:'<path d="M13 3L5 13.5h6L10.5 21 19 10.5h-6L13 3z"/>',
+  yen:'<path d="M7 5l5 6 5-6M12 11v8M8.5 14h7M8.5 17h7"/>',
+  refresh:'<path d="M20 11a8 8 0 10-2.3 5.7"/><path d="M20 5v6h-6"/>'
+};
+const ic = (n, cls) => `<span class="ib ${cls||''}"><svg viewBox="0 0 24 24">${ICON[n]||''}</svg></span>`;
+
+/* ---------- 通信 ----------
+   JIROKU と同じ方式。Content-Type を text/plain にすると
+   CORS のプリフライトが飛ばないため、GAS でもそのまま通る。 */
+async function api(action, params = {}) {
+  const r = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, key: KEY, ...params })
+  });
+  return await r.json();
+}
+
+/* ---------- 資金残高グラフ（SVG） ---------- */
+function chart(fc) {
+  const pts = fc.points || [];
+  if (pts.length < 2) return '';
+  const W = 760, H = 300, PL = 74, PR = 16, PT = 18, PB = 30;
+  let lo = 0, hi = 0;
+  pts.forEach(p => { if (p[1] < lo) lo = p[1]; if (p[1] > hi) hi = p[1]; });
+  if (hi === lo) hi = lo + 1;
+  let step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 5)));
+  while ((hi - lo) / step > 8) step *= 2;
+  hi = Math.ceil(hi / step) * step; lo = Math.floor(lo / step) * step;
+  const X = i => PL + (W - PL - PR) * (i / (pts.length - 1));
+  const Y = v => PT + (H - PT - PB) * (1 - (v - lo) / (hi - lo));
+  const y0 = Y(0);
+  const man = v => Math.abs(v) >= 10000 ? (v < 0 ? '-' : '') + (Math.round(Math.abs(v) / 1000) / 10) + '万' : String(Math.round(v));
+
+  let line = '';
+  pts.forEach((p, i) => { line += (i ? ' L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[1]).toFixed(1); });
+  const area = line + ` L${X(pts.length-1).toFixed(1)} ${y0.toFixed(1)} L${X(0).toFixed(1)} ${y0.toFixed(1)} Z`;
+
+  let g = `<svg viewBox="0 0 ${W} ${H}" class="chart" role="img" aria-label="これからの資金残高">`;
+  for (let v = lo; v <= hi + 0.5; v += step) {
+    const gy = Y(v);
+    g += `<line x1="${PL}" y1="${gy.toFixed(1)}" x2="${W-PR}" y2="${gy.toFixed(1)}" stroke="${Math.abs(v)<0.5?'#CBD5E1':'#EDF1F5'}" stroke-width="1"/>`;
+    g += `<text x="${PL-8}" y="${(gy+4).toFixed(1)}" text-anchor="end" font-size="11" fill="${v<0?'#E11D48':'#94A3B8'}">${man(v)}</text>`;
+  }
+  g += `<defs><clipPath id="blw"><rect x="0" y="${y0.toFixed(1)}" width="${W}" height="${Math.max(0,H-y0).toFixed(1)}"/></clipPath></defs>`;
+  g += `<path d="${area}" fill="#FF6B8A" opacity=".14" clip-path="url(#blw)"/>`;
+  const di = pts.findIndex(p => p[0] === fc.due);
+  if (di >= 0) g += `<line x1="${X(di).toFixed(1)}" y1="${PT}" x2="${X(di).toFixed(1)}" y2="${H-PB}" stroke="#FBBF24" stroke-width="2" stroke-dasharray="5 3"/>`;
+  g += `<path d="${line}" fill="none" stroke="#16A34A" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+  g += `<circle cx="${X(0).toFixed(1)}" cy="${Y(pts[0][1]).toFixed(1)}" r="3.5" fill="#16A34A"/>`;
+  if (fc.firstNeg) {
+    const ni = pts.findIndex(p => p[0] === fc.firstNeg.date);
+    if (ni >= 0) {
+      const cx = X(ni), cy = Y(pts[ni][1]);
+      g += `<line x1="${PL}" y1="${cy.toFixed(1)}" x2="${W-PR}" y2="${cy.toFixed(1)}" stroke="#FF6B8A" stroke-width="1" stroke-dasharray="5 4"/>`;
+      g += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="6" fill="#fff" stroke="#FF6B8A" stroke-width="3"/>`;
+      const bw = 152, bh = 46;
+      const bx = Math.min(W - PR - bw, Math.max(PL, cx + 14));
+      const by = Math.max(PT + 2, cy - bh - 16);
+      g += `<rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw}" height="${bh}" rx="9" fill="#FF3B63"/>`;
+      g += `<text x="${(bx+bw/2).toFixed(1)}" y="${(by+19).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">${esc(fc.firstNeg.date.slice(5).replace('-','/'))}に不足</text>`;
+      g += `<text x="${(bx+bw/2).toFixed(1)}" y="${(by+36).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">-${yen(fc.firstNeg.bal)}</text>`;
+    }
+  }
+  const every = Math.max(1, Math.round(pts.length / 7));
+  for (let t = 0; t < pts.length; t += every) {
+    g += `<text x="${X(t).toFixed(1)}" y="${H-9}" text-anchor="middle" font-size="11" fill="#94A3B8">${Number(pts[t][0].slice(5,7))}/${Number(pts[t][0].slice(8,10))}</text>`;
+  }
+  return g + '</svg>';
+}
+
+/* ---------- 画面 ---------- */
+function render() {
+  const d = DATA;
+  if (!d) return;
+  const short = d.funds.short, ng = short < 0;
+  const dueMD = md(d.funds.due);
+
+  const metric = (l, v, c) => `<div class="mt"><div class="mtL">${l}</div><div class="mtV ${c||''}">${v}</div></div>`;
+
+  const crisis = `
+  <div class="card crisis ${ng?'ng':'ok'} sect" data-tab="home">
+    <div class="crMain">
+      <div class="crH">
+        <div class="alarm"><svg viewBox="0 0 24 24">${ng
+          ? '<path d="M12 3l9.5 16.5H2.5L12 3z"/><path d="M12 9.5v4.2M12 16.9v.1"/>'
+          : '<path d="M20 6L9 17l-5-5"/>'}</svg></div>
+        <div>
+          <div class="ttl">${ng ? `${dueMD}に、${yen(short)}不足します。` : `${dueMD}の引き落とし後も ${yen(short)} 残ります。`}</div>
+          ${ng ? `<div class="sub2">${dueMD}までに ${yen(short)} を確保してください。</div>` : ''}
+        </div>
+      </div>
+      <div class="mtRow">
+        ${metric(esc(d.mode.main), yen(d.funds.main), '')}
+        ${metric(`次回のカード引落<br>（${esc(d.funds.due)}）`, '−' + yen(d.funds.card).slice(1), '')}
+        ${metric('入金予定', d.income.active ? `${d.income.active}件 反映中` : '<span class="muted">登録なし</span>', '')}
+        ${metric('不足見込み額', sign(short) + yen(short), ng ? 'minus' : 'plus')}
+      </div>
+    </div>
+    <div class="crSide">
+      <div class="bub">資金のピンチは、<br>俺が止める。</div>
+      <img class="msc" src="assets/mascot-${ng?'warn':'ok'}.png" alt="" />
+    </div>
+  </div>`;
+
+  /* 入金予定の候補 */
+  let incHtml = '';
+  if (d.income.candCount) {
+    const cs = d.income.candidates.map(o => `
+      <div class="ac">
+        <div class="acT">${esc(o.from)}　${yen(o.amount)}</div>
+        <div class="li">${esc(o.repeat || o.date)}（次回 ${esc(o.date)}）　確度 ${esc(o.conf)}</div>
+        <div class="note">${esc(o.why)}</div>
+        <button class="mini" data-act="incok" data-id="${esc(o.id)}">入金予定に追加する</button>
+        <button class="mini gray" data-act="incng" data-id="${esc(o.id)}">今後表示しない</button>
+      </div>`).join('');
+    incHtml = `<div class="card sect" data-tab="act">
+      <div class="ch">${ic('yen')}<div class="lbl">入金予定の候補　${d.income.candCount}件 / ${yen(d.income.candSum)}</div></div>
+      <div class="note" style="margin-bottom:8px">過去の入金実績から推測したものです。<b>承認するまで資金予測には反映されません。</b></div>
+      ${cs}</div>`;
+  }
+
+  /* いま打てる手 */
+  let actHtml = '';
+  if (ng || (d.actions.sims || []).length) {
+    const need = Math.min(Math.abs(short), d.funds.sub || 0);
+    const t = new Date(d.funds.due.replace(/-/g,'/')); t.setDate(t.getDate() - 1);
+    const tDate = t.toISOString().slice(0,10);
+    const simOn = {};
+    (d.actions.sims || []).forEach(s => { simOn[s.type + '|' + (s.label||'')] = s; });
+    const acard = (title, lines, btn, attrs, key) => {
+      const on = simOn[key];
+      return `<div class="ac${on?' on':''}"><div class="acT">${title}${on?'<span class="chip">反映中</span>':''}</div>${lines}
+        ${on ? `<button class="mini gray" data-act="remove" data-id="${esc(on.id)}">取り消す</button>`
+             : `<button class="mini" ${attrs}>${btn}</button>`}</div>`;
+    };
+    const fx = d.actions.picks.map(p => acard(
+      `${esc(p.name)} を止める`,
+      `<div class="li">月額　${yen(p.monthly)}</div><div class="li">仕分け　${esc(p.tri)}</div>`,
+      '止めた予定として登録する',
+      `data-act="stopfix" data-label="${esc(p.name)}" data-amount="${p.monthly}"`,
+      'stopfix|' + p.name)).join('');
+
+    let simres = '';
+    if ((d.actions.sims || []).length && d.forecastBefore) {
+      const solved = !d.forecast.firstNeg && d.forecastBefore.firstNeg;
+      simres = `<div class="simres ${solved?'ok':'ng'}">
+        <b>${solved ? `この対策で、${md(d.forecastBefore.firstNeg.date)}の資金不足は解消します。`
+                    : (d.forecast.firstNeg ? `まだ足りません。${md(d.forecast.firstNeg.date)}に ${yen(d.forecast.firstNeg.bal)} 不足します。` : '資金不足は出ません。')}</b>
+        <div class="li">対策前の最低残高　${sign(d.forecastBefore.min)}${yen(d.forecastBefore.min)}</div>
+        <div class="li">対策後の最低残高　${sign(d.forecast.min)}${yen(d.forecast.min)}</div>
+        <button class="mini gray" data-act="clear">すべての対策を取り消す</button></div>`;
+    }
+
+    actHtml = `<div class="card act sect" data-tab="act">
+      <div class="ch">${ic('bolt','pink')}<div class="lbl">いま打てる手${ng?`（不足 ${yen(short)} をどう埋めるか）`:''}</div></div>
+      <div class="stp"><div class="stpH">今すぐやること（${esc(d.funds.due)} に間に合う）</div>
+        ${d.funds.sub > 0 ? acard(
+          `${esc(d.mode.sub)}から ${yen(need)} を振り替える`,
+          `<div class="li">振替予定日　${esc(tDate)}（引落の前日）</div><div class="li">${esc(d.mode.sub)}の残高　${yen(d.funds.sub)}</div>`,
+          '振替予定として登録する',
+          `data-act="transfer" data-amount="${need}" data-date="${tDate}"`,
+          'transfer|個人口座からの振替') : ''}
+        <div class="ac"><div class="acT">入金予定を登録する</div>
+          <div class="li">取引先からの入金が見えていれば、日付と金額を入れてください</div>
+          <button class="mini" data-act="incoming">入金予定を登録する</button></div>
+        <div class="ac"><div class="acT">Amexに支払い方法を相談する</div>
+          <div class="li">引落予定　${esc(d.funds.due)}　${yen(d.funds.card)}</div>
+          <div class="note">※ 金額は変わらないため、グラフには反映しません</div></div>
+      </div>
+      <div class="stp"><div class="stpH">来月以降に効くこと（今月の不足には間に合いません）</div>
+        <div class="li">止めても平気なぶんで <b>${yen(d.actions.easyM)}/月</b>、たぶん不要も止めると <b>${yen(d.actions.easyM + d.actions.maybeM)}/月</b> 改善します</div>
+        ${fx}</div>
+      ${simres}</div>`;
+  }
+
+  const ms = d.milestones.map(m => `<div class="msb"><div class="msT">${m.days}日後</div>
+    <div class="msD">${esc(m.date)}</div>
+    <div class="msV ${m.bal>=0?'plus':'minus'}">${sign(m.bal)}${yen(m.bal)}</div></div>`).join('');
+
+  const fcHtml = `<div class="card sect" data-tab="fc">
+    <div class="ch">${ic('chart', d.forecast.firstNeg?'pink':'')}<div class="lbl big">将来残高の見通し</div></div>
+    <div class="note" style="margin:-4px 0 8px">平均月間入金 ${yen(d.avg.inc)} ／ 平均月間支出 ${yen(d.avg.exp)}　（起点は${esc(d.mode.main)} ${yen(d.forecast.start)}）</div>
+    <div class="fcw">${chart(d.forecast)}<div class="msw">${ms}</div></div>
+    <div class="note">${d.forecast.incomeCount
+      ? `※ 登録済みの入金予定 ${d.forecast.incomeCount} 件を反映しています。`
+      : '<b style="color:#B02A37">※ 入金予定が登録されていないため、実際より厳しい予測になっています。</b>'}
+      カード払いの固定費は、その日ではなく引落日にまとめて反映しています。</div></div>`;
+
+  const upcRows = d.upcoming.slice(0,8).map(u =>
+    `<tr><td>${esc(u.date.slice(5))}</td><td>${esc(u.name)}</td><td class="minus">${yen(u.amount)}</td><td class="ago">${esc(u.left)}</td></tr>`).join('');
+  const upcSum = d.upcoming.reduce((a,u) => a + u.amount, 0);
+  const upcHtml = d.upcoming.length ? `<div class="card sect" data-tab="tx">
+    <div class="ch">${ic('cal','gold')}<div class="lbl">これから30日に出ていくお金　${d.upcoming.length}件 / ${yen(upcSum)}</div></div>
+    <table>${upcRows}</table>
+    ${d.upcoming.length > 8 ? `<div class="note">ほか ${d.upcoming.length-8} 件</div>` : ''}</div>` : '';
+
+  const recRows = d.recent.map(r =>
+    `<tr><td>${esc(r.date.slice(5))}</td><td>${esc(r.name)}</td><td class="${r.amount>=0?'plus':'minus'}">${r.amount>=0?'+':'−'}${yen(r.amount).slice(1)}</td></tr>`).join('');
+
+  const chk = d.unknown.count ? `<div class="card sect" data-tab="home">
+    <div class="ch">${ic('alert','pink')}<div class="lbl">未確認取引</div></div>
+    <div class="li">利用先が取れていない支出　<b>${d.unknown.count}件 / ${yen(d.unknown.sum)}</b></div>
+    <div class="note">金額は資金予測に反映済みです。${d.mode.tax?'税理士資料の作成には確認が必要です。':''}デビット明細CSVを取り込むと店名が入ります。</div></div>` : '';
+
+  document.getElementById('app').innerHTML = `
+  <div class="top">
+    <div class="brand"><img src="assets/logo.png" alt="" />
+      <div><h1>せつやく番長</h1><div class="tag">資金のピンチは、俺が止める。</div></div></div>
+    <div class="topR">
+      <div class="upd">最終更新 ${esc(d.updatedAt || '不明')}</div>
+      <div class="trust ${esc(d.trust.level)}" title="${esc((d.trust.why||[]).join('・'))}">予測信頼度 <b>${esc(d.trust.level)}</b></div>
+      <button class="top" id="btn"><svg viewBox="0 0 24 24">${ICON.refresh}</svg>最新データを取得</button>
+    </div>
+  </div>
+  <div id="msg"></div>
+  <div class="cols">
+    <div>${crisis}${incHtml}${actHtml}${upcHtml}</div>
+    <div>
+      <div class="card sect" data-tab="home">
+        <div class="ch">${ic('shield','navy')}<div class="lbl">${esc(d.mode.main)}</div></div>
+        <div class="val">${yen(d.funds.main)}</div>
+        <div class="note">${esc(d.mode.mainNote)}</div>
+        <div class="sep"></div>
+        <div class="ch">${ic('wallet','gold')}<div class="lbl">${esc(d.mode.sub)}</div></div>
+        <div class="val sm">${yen(d.funds.sub)}</div>
+        <div class="note">${d.funds.includeSub ? '設定により合算しています。' : esc(d.mode.subNote)}</div>
+      </div>
+      <div class="grid sect" data-tab="home">
+        <div class="card"><div class="lbl">${esc(d.mode.inc)}（取れている分）</div><div class="val plus">${yen(d.month.inc)}</div></div>
+        <div class="card"><div class="lbl">${esc(d.mode.exp)}（取れている分）</div><div class="val minus">${yen(d.month.exp)}</div></div>
+      </div>
+      ${fcHtml}
+      <div class="card sect" data-tab="tx">
+        <div class="ch">${ic('yen','navy')}<div class="lbl">サブスク・固定費(月) ${yen(d.month.subM)}　／　直近の取引</div></div>
+        <table>${recRows}</table></div>
+      ${chk}
+      <div class="card sect" data-tab="etc">
+        <div class="ch">${ic('shield','navy')}<div class="lbl big">この画面について</div></div>
+        <div class="li">最終更新　${esc(d.updatedAt || '不明')}</div>
+        <div class="li">利用モード　${esc(d.mode.name)}</div>
+        <div class="li">予測信頼度　${esc(d.trust.level)}（${d.trust.score}点）</div>
+        ${(d.trust.why||[]).map(w => `<div class="note">・${esc(w)}</div>`).join('')}
+        <div class="sep"></div>
+        <div class="note">数値の計算はすべてスプレッドシート側で行っています。
+          この画面は結果を表示するだけで、独自の計算はしていません。
+          金額データは端末に保存しません（オフラインでは表示できません）。</div>
+        <button class="mini gray" data-act="logout">この端末から合言葉を消す</button>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tb on" data-t="home"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1v-8z"/></svg>ホーム</button>
+    <button class="tb" data-t="act"><svg viewBox="0 0 24 24"><path d="M13 3L5 13.5h6L10.5 21 19 10.5h-6L13 3z"/></svg>対策</button>
+    <button class="tb" data-t="fc"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 5-7 4 4"/></svg>予測</button>
+    <button class="tb" data-t="tx"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>取引</button>
+    <button class="tb" data-t="etc"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/></svg>その他</button>
+  </div>`;
+  showTab(TAB);
+}
+
+function showTab(t) {
+  TAB = t;
+  const mobile = getComputedStyle(document.querySelector('.tabs')).display !== 'none';
+  document.querySelectorAll('.sect').forEach(el => {
+    el.style.display = (!mobile || el.getAttribute('data-tab') === t) ? '' : 'none';
+  });
+  document.querySelectorAll('.tb').forEach(b => b.classList.toggle('on', b.getAttribute('data-t') === t));
+}
+
+/* ---------- 操作 ---------- */
+document.addEventListener('click', async ev => {
+  const tb = ev.target.closest('.tb');
+  if (tb) { showTab(tb.getAttribute('data-t')); return; }
+
+  const btn = ev.target.closest('#btn');
+  if (btn) {
+    if (BUSY) return;
+    BUSY = true; btn.disabled = true;
+    document.getElementById('msg').innerHTML =
+      '<div class="card"><div class="lbl">メールを取り込んで再計算しています… 1〜2分かかります</div></div>';
+    try { await api('update'); await load(); }
+    catch (e) { document.getElementById('msg').innerHTML = `<div class="err">更新に失敗しました：${esc(e.message)}</div>`; }
+    BUSY = false;
+    return;
+  }
+
+  const m = ev.target.closest('button.mini');
+  if (!m) return;
+  const a = m.getAttribute('data-act');
+  if (a === 'logout') {
+    localStorage.removeItem('banchou_key');
+    location.href = location.pathname;
+    return;
+  }
+  const p = {};
+  if (a === 'transfer') { p.amount = m.getAttribute('data-amount'); p.date = m.getAttribute('data-date'); }
+  else if (a === 'stopfix') { p.label = m.getAttribute('data-label'); p.amount = m.getAttribute('data-amount'); }
+  else if (a === 'remove' || a === 'incok' || a === 'incng') { p.id = m.getAttribute('data-id'); }
+  else if (a === 'incoming') {
+    const am = prompt('入金の金額を半角数字で入れてください（例 200000）'); if (!am) return;
+    const dt = prompt('入金予定日を入れてください（例 2026-08-20）'); if (!dt) return;
+    p.amount = am; p.date = dt; p.label = prompt('入金元（空欄でも大丈夫です）') || '入金予定';
+  }
+  m.disabled = true; m.textContent = '反映しています…';
+  try { await api('sim', { act: a, payload: p }); await load(); }
+  catch (e) { alert('エラー: ' + e.message); }
+});
+
+/* ---------- 起動 ---------- */
+async function load() {
+  if (!KEY) {
+    document.getElementById('app').innerHTML =
+      '<div class="err">合言葉がありません。URLの末尾に <b>?k=合言葉</b> を付けて開いてください。</div>';
+    return;
+  }
+  try {
+    const d = await api('stats');
+    if (!d.ok) throw new Error(d.error || '取得できませんでした');
+    DATA = d; render();
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      `<div class="err"><b>データを取得できませんでした。</b><br>${esc(e.message)}<br>
+       通信できないときは、スプレッドシート側のWebアプリが公開されているか確認してください。</div>`;
+  }
+}
+window.addEventListener('resize', () => { if (DATA) showTab(TAB); });
+load();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
