@@ -196,14 +196,25 @@ td.l.soon{color:var(--red);font-weight:700}
 /* ★画面の下辺にくっつけないこと。ブランド素材の番長は胸から上の「ステッカー」で、
    下辺に接するとキャラが見切れて見える（実際に見切れて見えた）。
    全体が入る大きさで、下に余白を残して置く。 */
-.spMascot{width:210px;max-width:58vw;height:auto;object-fit:contain;
-  margin:auto 0 11vh;mix-blend-mode:multiply;
-  /* 素材はステッカー型で下端が直線に切れている。そのまま出すと四角く見えるのでぼかす */
-  -webkit-mask-image:linear-gradient(#000 82%, rgba(0,0,0,0));
-  mask-image:linear-gradient(#000 82%, rgba(0,0,0,0));
+/* 番長の置き場。静止画と動画を重ねて、動画が再生できたら入れ替える。
+   ★必ず全身が入っている素材を使うこと。胸から上の素材や、下辺に接する置き方は
+     キャラが見切れて見える（何度もやり直しになった）。ぼかしで誤魔化さない。 */
+.spStage{position:relative;width:172px;max-width:46vw;aspect-ratio:3/4;
+  margin:auto 0 4vh}
+.spPoster,.spVid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:100%;transition:opacity .5s}
+/* ★合成は .spStage 側に掛けること。子要素に掛けると .spStage の中だけで合成され、
+   後ろの緑の波と混ざらず、白い四角が残る（実際に残った）。 */
+.spStage{mix-blend-mode:darken;
   animation:up .7s .3s ease-out both, float 3.4s 1s ease-in-out infinite}
-/* 動画が再生されているときは、CSSの揺れを止める（動画側の動きと二重にしない） */
-.sp.hasVideo .spMascot{animation:up .7s .3s ease-out both}
+/* 生成された動画の白地は純白ではなく薄いグレー。multiply だと四角い箱が見えるので
+   darken で合成する（背景より明るい画素は背景が勝つため、白地が自然に消える）。
+   わずかに明るさを上げて、白地が確実に背景より明るくなるようにしている。 */
+.spVid{opacity:0;filter:brightness(1.06)}
+.sp.hasVideo .spPoster{opacity:0}
+.sp.hasVideo .spVid{opacity:1}
+/* 動画側が動くので、CSSの揺れは止める（二重に揺らさない） */
+.sp.hasVideo .spStage{animation:up .7s .3s ease-out both}
 .spBadges{position:absolute;left:16px;bottom:24vh;display:flex;flex-direction:column;gap:14px}
 .spB{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid var(--line);
   box-shadow:0 3px 10px rgba(13,27,42,.08);display:flex;align-items:center;justify-content:center;
@@ -284,14 +295,16 @@ td.l.soon{color:var(--red);font-weight:700}
     <span class="spB"><svg viewBox="0 0 24 24" stroke="#16A34A"><path d="M4 19V11M9.5 19V5M15 19v-6M20.5 19V8"/></svg></span>
   </div>
   <div class="spMsg" id="spMsg">読み込んでいます…</div>
-  <!-- 動画（Higgsfield等）を assets/ に置くと自動でそちらが再生される。
-       置いていない間は poster の静止画がそのまま出るので、何もしなくても壊れない。
-       白背景の動画でも縁が出ないよう mix-blend-mode:multiply を掛けている。 -->
-  <video class="spMascot" autoplay muted loop playsinline preload="auto"
-         poster="assets/mascot-stand.png" aria-hidden="true">
-    <source src="assets/mascot-stand.webm" type="video/webm" />
-    <source src="assets/mascot-stand.mp4" type="video/mp4" />
-  </video>
+  <!-- 動画（Higgsfield生成）と静止画を重ねている。動画が再生できたときだけ入れ替わるので、
+       動画を消しても・読めなくても静止画のまま動く。
+       動画は正方形で周りに余白があるため、拡大して余白を隠している。 -->
+  <div class="spStage">
+    <img class="spPoster" src="assets/mascot-body.png" alt="" />
+    <video class="spVid" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="assets/mascot-body.webm" type="video/webm" />
+      <source src="assets/mascot-body.mp4" type="video/mp4" />
+    </video>
+  </div>
 </div>
 
 <div class="wrap" id="app"></div>
@@ -350,12 +363,13 @@ const arw = () => `<svg viewBox="0 0 24 24">${P.arrow}</svg>`;
 const SP_AT = Date.now();
 /* 動画が実際に再生できたときだけ、CSSの揺れを止める */
 (function () {
-  const v = document.querySelector('.spMascot');
-  if (v && v.tagName === 'VIDEO') {
+  const v = document.querySelector('.spVid');
+  if (v) {
     v.addEventListener('playing', () => document.getElementById('sp')?.classList.add('hasVideo'), { once: true });
   }
 })();
 function hideSp() {
+  if (qs.get('splash')) return;   // ?splash=1 で出しっぱなしにできる（見た目の確認用）
   const sp = document.getElementById('sp');
   if (!sp || sp.classList.contains('out')) return;
   setTimeout(() => {
