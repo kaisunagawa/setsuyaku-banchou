@@ -9,327 +9,341 @@
 <link rel="icon" href="icon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="せつやく番長" />
-<meta name="theme-color" content="#FFFFFF" />
+<meta name="theme-color" content="#111F30" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet" />
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --ink:#0D1B2A; --sub:#6B7A8C; --mute:#94A3B8;
-  --line:#E8ECF1; --bg:#FFFFFF; --soft:#F7F9FB;
-  --red:#E8192C; --redL:#FFF5F6; --redB:#FFD9DE;
-  --blue:#2563EB; --blueL:#EFF4FF;
-  --green:#16A34A; --greenL:#EAF7EF;
-  --purple:#7C3AED; --purpleL:#F3EEFF;
-  --amber:#F59E0B; --amberL:#FEF6E7;
+  /* 番長＝学ラン。濃紺と金と警告色。淡い青のSaaS配色はやめる */
+  --ink:#0B1622; --slab:#111F30; --slab2:#1B2E44;
+  --paper:#fff; --wash:#F7F8FA;
+  --rule:#E4E8ED; --hair:#EFF2F5;
+  --sub:#5F6E7E; --mute:#94A2B1;
+  --red:#D80B2B; --redW:#FFF4F5; --redL:#F7C9D0;
+  --alert:#FF5064;             /* 濃紺の上でだけ使う赤 */
+  --go:#16A34A; --goW:#EDF8F1;
+  --gold:#FFBF24;
+  --blue:#1F5FD6;
+  --purple:#6D3BE0;
 }
-html{background:var(--bg)}
-body{font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:var(--ink);
-  background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5;
-  padding:12px 16px calc(74px + env(safe-area-inset-bottom));}
-.wrap{max-width:520px;margin:0 auto}
+html{background:var(--paper)}
+body{font-family:"Zen Kaku Gothic New","Hiragino Sans",-apple-system,sans-serif;
+  color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;
+  line-height:1.6;letter-spacing:.01em;
+  padding:10px 18px calc(80px + env(safe-area-inset-bottom))}
+.wrap{max-width:560px;margin:0 auto}
+.num{font-family:Anton,"Zen Kaku Gothic New",sans-serif;font-weight:400;
+  letter-spacing:.005em;font-feature-settings:"tnum";font-variant-numeric:tabular-nums}
 
 /* ============ ヘッダー ============ */
-.hd{display:flex;align-items:center;gap:11px;padding:6px 0 14px}
-.hd img{width:38px;height:38px;border-radius:9px;flex:0 0 auto}
-.hdT{font-size:19px;font-weight:700;letter-spacing:.01em;line-height:1.25}
-.hdS{font-size:11px;font-weight:700;color:var(--green);margin-top:1px}
-.hdR{margin-left:auto;display:flex;align-items:center;gap:10px;flex:0 0 auto}
+.hd{display:flex;align-items:center;gap:10px;padding:8px 0 16px}
+.hd>img{width:34px;height:34px;border-radius:8px;flex:0 0 auto}
+.hdT{font-size:17px;font-weight:900;letter-spacing:.02em;line-height:1.2}
+.hdS{font-size:10.5px;font-weight:700;color:var(--go);margin-top:2px;letter-spacing:.04em}
+.hdR{margin-left:auto;display:flex;align-items:center;gap:9px;flex:0 0 auto}
 .hdT,.hdS{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.upd,.trust{display:none}   /* 狭い画面では出さない（その他タブに同じ情報がある） */
-.iconbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;
+.upd,.trust{display:none}
+.iconbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;
   display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex:0 0 auto}
-.iconbtn svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.iconbtn svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .iconbtn.spin svg{animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .upd{font-size:11px;color:var(--mute);white-space:nowrap}
-.trust{font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--line);white-space:nowrap}
-.trust.高{border-color:#BBF7D0;background:#F0FDF4;color:#15803D}
-.trust.中{border-color:#FDE68A;background:#FFFBEB;color:#B45309}
-.trust.低{border-color:var(--redB);background:var(--redL);color:var(--red)}
+.trust{font-size:10.5px;font-weight:700;padding:5px 10px;border:1.5px solid var(--rule);white-space:nowrap}
+.trust.高{border-color:var(--go);color:var(--go)}
+.trust.中{border-color:var(--gold);color:#9A6B00}
+.trust.低{border-color:var(--red);color:var(--red)}
 
-/* ============ カード共通 ============ */
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
-.cardT{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
-.cardT svg{width:19px;height:19px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* ============ 見出し ============ */
+/* 箱で囲まない。罫線と余白で区切る。囲むほど画面が狭く見える */
+.pgT{font-size:24px;font-weight:900;letter-spacing:.01em;line-height:1.3;padding-top:4px}
+.pgS{font-size:12.5px;color:var(--sub);margin:6px 0 18px;line-height:1.75}
+.cardT{font-size:15px;font-weight:900;display:flex;align-items:center;gap:8px;letter-spacing:.01em}
+.cardT svg{width:17px;height:17px;stroke:var(--ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .cardS{font-size:12px;color:var(--sub);margin-top:3px}
-.pgT{font-size:23px;font-weight:700;padding:2px 0 2px}
-.pgS{font-size:13px;color:var(--sub);margin:4px 0 16px;line-height:1.7}
-.sqi{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
-.sqi svg{width:21px;height:21px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.b-blue{background:var(--blueL)}.b-blue svg{stroke:var(--blue)}
-.b-green{background:var(--greenL)}.b-green svg{stroke:var(--green)}
-.b-purple{background:var(--purpleL)}.b-purple svg{stroke:var(--purple)}
-.b-amber{background:var(--amberL)}.b-amber svg{stroke:var(--amber)}
-.b-red{background:var(--redL)}.b-red svg{stroke:var(--red)}
-.link{display:flex;align-items:center;justify-content:flex-end;gap:5px;font-size:13px;
-  font-weight:700;color:var(--blue);cursor:pointer;padding-top:11px}
-.link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sec{margin-bottom:26px}
+.secH{display:flex;align-items:baseline;gap:9px;padding-bottom:9px;margin-bottom:14px;
+  border-bottom:2px solid var(--ink)}
+.secH b{font-size:13.5px;font-weight:900;letter-spacing:.06em}
+.secH span{margin-left:auto;font-size:11.5px;color:var(--mute)}
+.card{background:#fff;border:1px solid var(--rule);padding:16px;margin-bottom:12px}
+.link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:900;
+  color:var(--ink);cursor:pointer;padding-top:12px;border-bottom:2px solid var(--gold);
+  padding-bottom:2px;letter-spacing:.02em}
+.link svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.sqi{width:38px;height:38px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  border:1.5px solid var(--ink)}
+.sqi svg{width:19px;height:19px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke:var(--ink)}
+.b-blue,.b-green,.b-purple,.b-amber,.b-red{background:#fff}
+.b-green{border-color:var(--go)} .b-green svg{stroke:var(--go)}
+.b-blue{border-color:var(--blue)} .b-blue svg{stroke:var(--blue)}
+.b-purple{border-color:var(--purple)} .b-purple svg{stroke:var(--purple)}
+.b-amber{border-color:#C98A00} .b-amber svg{stroke:#C98A00}
+.b-red{border-color:var(--red)} .b-red svg{stroke:var(--red)}
 
-/* ============ 危機カード ============ */
-/* ★詰めて組むこと。1画面に「危機カード＋タイル＋見通し」が入らないと、
-   いちばん見せたい不足額しか見えず、かえって使いにくくなる（実際になった）。 */
-.crisis{position:relative;border:1px solid var(--redB);background:var(--redL);
-  border-radius:14px;padding:13px 14px;margin-bottom:10px;overflow:hidden}
-.crisis.ok{border-color:#BBF7D0;background:#F0FDF4}
-.crH{display:flex;gap:9px;padding-right:78px}
-.bang{width:28px;height:28px;border-radius:50%;background:var(--red);display:flex;
-  align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px}
-.crisis.ok .bang{background:var(--green)}
-.bang svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.8;stroke-linecap:round}
-.ttl{font-size:17.5px;font-weight:700;color:var(--red);line-height:1.42;letter-spacing:-.02em}
-.crisis.ok .ttl{color:#15803D}
-/* 番長は上部にしか掛からないので、この行は右の余白を空けない（1行に収める） */
-.crSub{font-size:12px;font-weight:700;margin:7px 0 0;line-height:1.55}
-.msc{position:absolute;right:6px;top:4px;width:80px;height:auto}
-.rows{background:#fff;border:1px solid var(--line);border-radius:10px;margin-top:11px;padding:0 12px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:8px 0;border-bottom:1px solid #F1F4F8}
+/* ============ 判決（このアプリの主役） ============
+   ここだけ濃紺で塗る。ほかを静かにして、この一枚に全部を語らせる */
+.crisis{position:relative;background:var(--slab);color:#fff;padding:0;margin-bottom:24px;
+  overflow:hidden}
+.crisis::before{content:"";position:absolute;inset:0 0 auto 0;height:7px;
+  background:repeating-linear-gradient(115deg,var(--gold) 0 13px,var(--slab) 13px 26px)}
+.crisis.ok::before{background:repeating-linear-gradient(115deg,var(--go) 0 13px,var(--slab) 13px 26px)}
+.crIn{padding:24px 18px 18px;position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:900;
+  letter-spacing:.14em;color:var(--gold);margin-bottom:12px}
+.crisis.ok .eyebrow{color:#7DE0A4}
+.eyebrow i{display:block;width:16px;height:2px;background:currentColor}
+.ttl{font-size:23px;font-weight:900;line-height:1.35;letter-spacing:.01em;color:#fff}
+.ttl .num{font-family:Anton,inherit;font-weight:400}
+.ttl .amt{display:block;font-family:Anton,inherit;font-weight:400;
+  font-size:clamp(40px,13vw,60px);line-height:1;margin:8px 0 0;color:var(--alert)}
+.ttl .tail{font-size:19px;font-weight:900}
+.crisis.ok .ttl .amt{color:#7DE0A4}
+.crSub{font-size:12.5px;color:#B7C4D2;margin-top:14px;max-width:23em;line-height:1.7}
+/* ★右端や下端にはみ出させないこと。切れて見えると指摘された。
+   全身が枠の内側に完全に収まる位置・大きさにする。 */
+/* ★数字の上に重ねないこと。番長は見出しの右の余白にだけ置き、
+   その分だけ見出し側に余白を取る。行や金額には一切かからないようにする。 */
+.msc{position:absolute;right:14px;top:26px;width:84px;height:auto;z-index:0;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.45))}
+.eyebrow,.ttl,.crSub{padding-right:96px}
+.spark{display:block;width:100%;height:auto;margin-top:16px}
+.rows{border-top:1px solid rgba(255,255,255,.14);margin-top:16px;position:relative;z-index:1}
+.row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+  padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .row:last-child{border-bottom:0}
-.rowL{font-size:11.5px;color:var(--sub);line-height:1.35}
-.rowV{font-size:15.5px;font-weight:700;white-space:nowrap}
-.row.dg .rowL{color:var(--red);font-weight:700}
-.row.dg .rowV{color:var(--red);font-size:16.5px}
-.cta{width:100%;margin-top:11px;padding:12px;border:0;border-radius:10px;background:var(--red);
-  color:#fff;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px}
-.cta svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.rowL{font-size:11.5px;color:#93A4B6;letter-spacing:.02em}
+.rowV{font-size:17px;font-weight:700;white-space:nowrap;color:#fff;
+  font-variant-numeric:tabular-nums}
+.row.dg .rowL{color:var(--alert)}
+.row.dg .rowV{color:var(--alert);font-size:19px}
+.cta{width:100%;margin:18px 0 0;padding:15px;border:0;background:var(--alert);
+  color:#fff;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.04em;
+  display:flex;align-items:center;justify-content:center;gap:8px;position:relative;z-index:2}
+.crisis.ok .cta{background:var(--go)}
+.cta svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 
-/* ============ 数字タイル（モックアップと同じ横3つ） ============ */
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
-.tile{border:1px solid var(--line);border-radius:11px;padding:9px;background:#fff;min-width:0}
-.tile .sqi{width:22px;height:22px;border-radius:7px;margin-bottom:5px}
-.tile .sqi svg{width:13px;height:13px}
-.tileL{font-size:9.5px;color:var(--sub);line-height:1.35;min-height:26px}
-.tileV{font-size:15px;font-weight:700;margin-top:2px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
+/* ============ 数字（囲まない。罫線で並べる） ============ */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--ink);
+  border-bottom:1px solid var(--rule);margin-bottom:24px}
+.tile{padding:13px 10px 14px;border-right:1px solid var(--hair);min-width:0}
+.tile:last-child{border-right:0}
+.tile .sqi{display:none}
+.tileL{font-size:10px;color:var(--sub);line-height:1.45;min-height:29px;letter-spacing:.02em}
+.tileV{font-size:19px;font-weight:700;margin-top:3px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 
 /* ============ 見通し ============ */
-.ms{display:grid;grid-template-columns:repeat(3,1fr);margin-top:12px;text-align:center}
-.msb{padding:8px 4px;border-right:1px solid var(--line)}
+.ms{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;
+  border-top:1px solid var(--rule)}
+.msb{padding:12px 6px;border-right:1px solid var(--hair)}
 .msb:last-child{border-right:0}
-.msT{font-size:12px;font-weight:700}
-.msD{font-size:10.5px;color:var(--mute);margin:1px 0 5px}
-.msV{font-size:15px;font-weight:700}
-.neg{color:var(--red)}.pos{color:var(--green)}
-.chart{width:100%;height:auto;display:block;margin:10px 0 0}
-.foot{font-size:10.5px;color:var(--mute);margin-top:9px;line-height:1.7}
+.msT{font-size:11px;font-weight:900;letter-spacing:.06em;color:var(--sub)}
+.msD{font-size:10px;color:var(--mute);margin:2px 0 6px}
+.msV{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.neg{color:var(--red)}.pos{color:var(--go)}
+.chart{width:100%;height:auto;display:block;margin:6px 0 0}
+.foot{font-size:11px;color:var(--mute);margin-top:11px;line-height:1.8}
 
-/* ============ 対策カード ============ */
-.ac{border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px;background:#fff}
-.ac.on{border-color:var(--green);background:#F6FDF8}
-.acH{display:flex;gap:11px;align-items:flex-start}
-.acT{font-size:14.5px;font-weight:700;line-height:1.45}
-.acD{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6}
-.acF{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:11px;border-top:1px solid #F1F4F8}
-.acE{font-size:10.5px;color:var(--mute);line-height:1.3}
-.acA{font-size:14px;font-weight:700;color:var(--ink)}
-.pill{margin-left:auto;padding:9px 15px;border:0;border-radius:9px;color:#fff;font-family:inherit;
-  font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
-.pill svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.p-green{background:var(--green)}.p-blue{background:var(--blue)}
-.p-purple{background:var(--purple)}.p-gray{background:#E2E8F0;color:#475569}
-.chip{display:inline-block;margin-left:7px;padding:2px 8px;border-radius:99px;
-  background:var(--green);color:#fff;font-size:10px;font-weight:700;vertical-align:2px}
-.info{display:flex;gap:11px;align-items:center;background:var(--soft);border:1px solid var(--line);
-  border-radius:13px;padding:13px 14px;margin-bottom:11px}
-.res{border-radius:11px;padding:13px 14px;font-size:13px;line-height:1.7;margin-bottom:11px}
-.res.ok{background:#EAF7EF;color:#14532D}.res.ng{background:var(--redL);color:#9F1239}
+/* ============ 対策 ============ */
+.ac{border:1px solid var(--rule);border-left:3px solid var(--ink);
+  padding:15px;margin-bottom:12px;background:#fff}
+.ac.on{border-color:var(--go);border-left-color:var(--go);background:var(--goW)}
+.acH{display:flex;gap:12px;align-items:flex-start}
+.acT{font-size:14.5px;font-weight:900;line-height:1.5;letter-spacing:.01em}
+.acD{font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7}
+.acF{display:flex;align-items:center;gap:10px;margin-top:13px;padding-top:12px;border-top:1px solid var(--hair)}
+.acE{font-size:10px;color:var(--mute);letter-spacing:.06em;font-weight:700}
+.acA{font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.pill{margin-left:auto;padding:11px 16px;border:0;color:#fff;font-family:inherit;
+  font-size:12.5px;font-weight:900;cursor:pointer;white-space:nowrap;letter-spacing:.03em;
+  display:flex;align-items:center;gap:6px}
+.pill svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.p-green{background:var(--go)}.p-blue{background:var(--blue)}
+.p-purple{background:var(--purple)}.p-gray{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.chip{display:inline-block;margin-left:8px;padding:3px 8px;background:var(--go);color:#fff;
+  font-size:9.5px;font-weight:900;letter-spacing:.08em;vertical-align:2px}
+.info{display:flex;gap:12px;align-items:center;background:var(--wash);
+  padding:14px;margin-bottom:12px}
+.res{padding:14px;font-size:13px;line-height:1.8;margin-bottom:14px;border-left:3px solid}
+.res.ok{background:var(--goW);border-color:var(--go);color:#0F5132}
+.res.ng{background:var(--redW);border-color:var(--red);color:#8B0B22}
+/* 文中に流し込まれて読めなくなるので、リンクは必ず改行して置く */
+.res .link{display:flex;width:fit-content;margin-top:4px}
 
 /* ============ 表 ============ */
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
-th{font-size:11px;color:var(--mute);font-weight:400;text-align:left;padding:7px 4px;border-bottom:1px solid var(--line)}
-td{padding:11px 4px;border-bottom:1px solid #F4F7FA;white-space:nowrap}
-td.d{color:var(--mute);font-size:11.5px}
-td.n{max-width:0;width:99%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+th{font-size:10px;color:var(--mute);font-weight:900;letter-spacing:.08em;text-align:left;
+  padding:8px 4px;border-bottom:2px solid var(--ink)}
+td{padding:12px 4px;border-bottom:1px solid var(--hair);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+td.d{color:var(--mute);font-size:11px}
+td.n{max-width:0;width:99%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-variant-numeric:normal}
 td.a{text-align:right;font-weight:700;color:var(--red)}
-td.a.pos{color:var(--green)}
-td.l{text-align:right;font-size:11px;color:var(--mute);padding-left:10px}
-td.l.soon{color:var(--red);font-weight:700}
+td.a.pos{color:var(--go)}
+td.l{text-align:right;font-size:10.5px;color:var(--mute);padding-left:10px}
+td.l.soon{color:var(--red);font-weight:900}
 
 /* ============ 番長のひとこと ============ */
-.say{display:flex;gap:12px;align-items:flex-end;background:var(--soft);
-  border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
-.sayT{flex:1;min-width:0}
-.sayH{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:7px;margin-bottom:7px}
-.sayH svg{width:17px;height:17px;stroke:var(--amber);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.sayB{font-size:12.5px;line-height:1.75;color:#334155}
-.say img{width:74px;height:auto;flex:0 0 auto}
+.say{display:flex;gap:14px;align-items:flex-end;background:var(--slab);color:#fff;
+  padding:16px 16px 0;margin-bottom:24px;overflow:hidden}
+.sayT{flex:1;min-width:0;padding-bottom:18px}
+.sayH{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--gold);
+  display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.sayH svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sayB{font-size:13px;line-height:1.8;color:#DCE5EE;font-weight:500}
+.say>img{width:96px;height:auto;flex:0 0 auto;margin-bottom:-2px}
 
 /* ============ タブ ============ */
-.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(255,255,255,.96);
-  backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20;
-  padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
-.tb{flex:1;border:0;background:none;font-family:inherit;font-size:10px;color:var(--mute);
-  padding:3px 0;cursor:pointer;font-weight:500}
-.tb svg{width:22px;height:22px;display:block;margin:0 auto 3px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tb.on{color:var(--blue);font-weight:700}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(255,255,255,.97);
+  backdrop-filter:blur(12px);border-top:2px solid var(--ink);z-index:20;
+  padding:0 0 env(safe-area-inset-bottom)}
+.tb{flex:1;border:0;background:none;font-family:inherit;font-size:9.5px;color:var(--mute);
+  padding:10px 0 9px;cursor:pointer;font-weight:700;letter-spacing:.04em;
+  border-top:3px solid transparent;margin-top:-2px}
+.tb svg{width:21px;height:21px;display:block;margin:0 auto 4px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tb.on{color:var(--ink);border-top-color:var(--gold)}
 
-/* ============ 入力シート（下から出るやつ） ============
-   prompt() は素っ気ないうえ、ホーム画面から開いたPWAでは出ないことがある。 */
+/* ============ 状態表示 ============ */
+.kL{font-size:10.5px;color:var(--sub);font-weight:900;letter-spacing:.08em}
+.kV{font-size:19px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.sep{height:1px;background:var(--rule);margin:14px 0}
+.err{background:var(--redW);border-left:3px solid var(--red);color:#8B0B22;
+  padding:14px;font-size:13px;line-height:1.8;margin-bottom:12px}
+.err button{margin-top:11px;padding:11px 18px;border:0;background:var(--red);
+  color:#fff;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer}
+.busy{background:var(--slab);color:#fff;padding:14px;font-size:13px;margin-bottom:12px;font-weight:700}
+.busy .bar{height:3px;background:rgba(255,255,255,.2);margin-top:10px;overflow:hidden}
+.busy .bar i{display:block;height:100%;width:34%;background:var(--gold);
+  animation:slide 1.5s ease-in-out infinite}
+@keyframes slide{0%{margin-left:-34%}100%{margin-left:100%}}
+.busy small{display:block;font-weight:400;font-size:11px;margin-top:6px;color:#A9BACB}
+.done{background:var(--goW);border-left:3px solid var(--go);color:#0F5132;
+  padding:14px;font-size:13px;margin-bottom:12px;font-weight:700}
+.cta:active,.pill:active,.err button:active,.iconbtn:active{transform:translateY(1px);opacity:.92}
+.tb:active,.link:active{opacity:.55}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ============ 入力シート ============ */
 .sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;
-  background:rgba(13,27,42,.42);animation:fade .2s ease-out}
-.sheet .in{width:100%;max-width:480px;background:#fff;border-radius:18px 18px 0 0;
-  padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:rise .28s cubic-bezier(.2,.9,.3,1)}
+  background:rgba(11,22,34,.55);animation:fade .2s ease-out}
+.sheet .in{width:100%;max-width:480px;background:#fff;
+  padding:22px 18px calc(22px + env(safe-area-inset-bottom));animation:rise .26s cubic-bezier(.2,.9,.3,1);
+  border-top:4px solid var(--ink)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes rise{from{transform:translateY(100%)}to{transform:none}}
-.sheet h3{font-size:17px;font-weight:700;margin-bottom:4px}
-.sheet .foot{margin:0 0 14px}
-.fld{margin-bottom:13px}
-.fld label{display:block;font-size:11.5px;color:var(--sub);margin-bottom:5px;font-weight:700}
-.fld input{width:100%;padding:13px;font-family:inherit;font-size:16px;border:1px solid #CBD5E1;
-  border-radius:11px;background:#fff;color:var(--ink)}
-.fld input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14)}
-.fld .hint{font-size:11px;color:var(--mute);margin-top:5px}
-.sheet .btns{display:flex;gap:9px;margin-top:6px}
-.sheet .btns button{flex:1;padding:14px;border:0;border-radius:11px;font-family:inherit;
-  font-size:15px;font-weight:700;cursor:pointer}
-.sheet .ok{background:var(--green);color:#fff}
-.sheet .no{background:#EEF2F6;color:#475569}
-.sheet .bad{background:var(--redL);border:1px solid var(--redB);color:#9F1239;
-  padding:10px 12px;border-radius:10px;font-size:12.5px;margin-bottom:12px}
-@media(min-width:1000px){
-  .sheet{align-items:center}
-  .sheet .in{border-radius:18px;max-width:420px;padding:24px}
-}
+.sheet h3{font-size:18px;font-weight:900;margin-bottom:4px}
+.sheet .foot{margin:0 0 16px}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:10.5px;color:var(--sub);margin-bottom:6px;
+  font-weight:900;letter-spacing:.08em}
+.fld input{width:100%;padding:14px;font-family:inherit;font-size:16px;border:1.5px solid var(--rule);
+  background:#fff;color:var(--ink)}
+.fld input:focus{outline:none;border-color:var(--ink)}
+.fld .hint{font-size:11px;color:var(--mute);margin-top:6px}
+.sheet .btns{display:flex;gap:10px;margin-top:6px}
+.sheet .btns button{flex:1;padding:15px;border:0;font-family:inherit;
+  font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.03em}
+.sheet .ok{background:var(--go);color:#fff}
+.sheet .no{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.sheet .bad{background:var(--redW);border-left:3px solid var(--red);color:#8B0B22;
+  padding:11px 13px;font-size:12.5px;margin-bottom:13px}
 
-/* ============ 合言葉／読み込み ============ */
+/* ============ 合言葉 ============ */
 .gate{max-width:340px;margin:0 auto;padding:44px 0 0;text-align:center}
-.gate>img{width:82px;height:82px;border-radius:19px;border:1px solid var(--line)}
-.gate h1{font-size:21px;margin-top:15px}
-.gate .hdS{font-size:12.5px;margin-top:3px}
-.gate .card{margin-top:20px;text-align:left}
-.gate input{width:100%;padding:13px;margin:7px 0 11px;font-family:inherit;font-size:16px;
-  border:1px solid #CBD5E1;border-radius:11px;background:#fff;color:var(--ink)}
-.gate input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14)}
-.gate button{width:100%;padding:14px;border:0;border-radius:11px;background:var(--blue);
-  color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
-/* ---- スプラッシュ（読み込み中） ----
-   静止画を1枚貼るのではなく、パーツを分けて少しずつ動かしている。
-   あとで動画に差し替えたくなったら .spMascot の img を video に替えるだけでよい。 */
+.gate>img{width:78px;height:78px}
+.gate h1{font-size:22px;font-weight:900;margin-top:16px;letter-spacing:.02em}
+.gate .hdS{font-size:12px;margin-top:4px}
+.gate .card{margin-top:22px;text-align:left;border-top:4px solid var(--ink)}
+.gate input{width:100%;padding:14px;margin:8px 0 12px;font-family:inherit;font-size:16px;
+  border:1.5px solid var(--rule);background:#fff;color:var(--ink)}
+.gate input:focus{outline:none;border-color:var(--ink)}
+.gate button{width:100%;padding:15px;border:0;background:var(--ink);
+  color:#fff;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;letter-spacing:.04em}
+
+/* ============ スプラッシュ ============ */
 .sp{position:fixed;inset:0;background:#fff;z-index:60;overflow:hidden;
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   padding-top:11vh;animation:spIn .5s ease-out}
 .sp.out{animation:spOut .45s ease-in forwards;pointer-events:none}
 @keyframes spIn{from{opacity:0}to{opacity:1}}
 @keyframes spOut{to{opacity:0;visibility:hidden}}
-.spWave{position:absolute;left:0;right:0;width:100%;pointer-events:none}
-.spWave.t{top:0}.spWave.b{bottom:0}
-.spSym{width:112px;height:auto;animation:pop .7s cubic-bezier(.2,1.5,.4,1) both}
-.spName{font-size:34px;font-weight:700;letter-spacing:.01em;margin-top:12px;
+/* ★スプラッシュの背景は白のままにすること。
+   ブランド素材はステッカー仕様で白フチが付いており、
+   背景に色を敷くとフチが「枠」として浮き出る（実際に指摘された）。 */
+.spSym{width:104px;height:auto;animation:pop .7s cubic-bezier(.2,1.5,.4,1) both}
+.spName{font-size:32px;font-weight:900;letter-spacing:.02em;margin-top:14px;
   animation:up .6s .12s ease-out both}
-.spName i{font-style:normal;color:var(--green)}
-.spTag{font-size:14px;font-weight:700;color:#334155;margin-top:7px;
+.spName i{font-style:normal;color:var(--go)}
+.spTag{font-size:13px;font-weight:700;color:var(--sub);margin-top:8px;letter-spacing:.04em;
   animation:up .6s .22s ease-out both}
-/* ★画面の下辺にくっつけないこと。ブランド素材の番長は胸から上の「ステッカー」で、
-   下辺に接するとキャラが見切れて見える（実際に見切れて見えた）。
-   全体が入る大きさで、下に余白を残して置く。 */
-/* 番長の置き場。静止画と動画を重ねて、動画が再生できたら入れ替える。
-   ★必ず全身が入っている素材を使うこと。胸から上の素材や、下辺に接する置き方は
-     キャラが見切れて見える（何度もやり直しになった）。ぼかしで誤魔化さない。 */
-.spStage{position:relative;width:172px;max-width:46vw;aspect-ratio:3/4;
-  margin:auto 0 4vh}
-.spPoster,.spVid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:100%;transition:opacity .5s}
-/* ★合成は .spStage 側に掛けること。子要素に掛けると .spStage の中だけで合成され、
-   後ろの緑の波と混ざらず、白い四角が残る（実際に残った）。 */
-.spStage{mix-blend-mode:darken;
+/* 素材は背景透過済み。合成モードは使わない（使うと色がにごる） */
+.spStage{position:relative;height:34vh;aspect-ratio:424/1073;max-width:44vw;margin:auto 0 5vh;
   animation:up .7s .3s ease-out both, float 3.4s 1s ease-in-out infinite}
-/* 生成された動画の白地は純白ではなく薄いグレー。multiply だと四角い箱が見えるので
-   darken で合成する（背景より明るい画素は背景が勝つため、白地が自然に消える）。
-   わずかに明るさを上げて、白地が確実に背景より明るくなるようにしている。 */
-.spVid{opacity:0;filter:brightness(1.06)}
+.spPoster,.spVid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .5s}
+.spVid{opacity:0}
 .sp.hasVideo .spPoster{opacity:0}
 .sp.hasVideo .spVid{opacity:1}
-/* 動画側が動くので、CSSの揺れは止める（二重に揺らさない） */
 .sp.hasVideo .spStage{animation:up .7s .3s ease-out both}
 .spBadges{position:absolute;left:16px;bottom:24vh;display:flex;flex-direction:column;gap:14px}
-.spB{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid var(--line);
-  box-shadow:0 3px 10px rgba(13,27,42,.08);display:flex;align-items:center;justify-content:center;
-  animation:up .5s ease-out both}
+.spB{width:42px;height:42px;background:#fff;border:1.5px solid var(--ink);
+  display:flex;align-items:center;justify-content:center;animation:up .5s ease-out both}
 .spB:nth-child(1){animation-delay:.45s}
 .spB:nth-child(2){animation-delay:.6s}
 .spB:nth-child(3){animation-delay:.75s}
-.spB svg{width:21px;height:21px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.spMsg{margin-top:26px;font-size:11.5px;color:var(--mute);
+.spB svg{width:20px;height:20px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.spMsg{margin-top:26px;font-size:11px;color:var(--mute);letter-spacing:.06em;
   animation:blink 1.6s ease-in-out infinite}
 @keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
 @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-9px) rotate(-1.1deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes blink{0%,100%{opacity:.45}50%{opacity:1}}
-@media(prefers-reduced-motion:reduce){
-  .sp *{animation-duration:.01ms!important;animation-iteration-count:1!important}
-}
+@media(prefers-reduced-motion:reduce){.sp *,.spStage{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 .load{text-align:center;padding:26vh 20px;color:var(--mute);font-size:13px}
-.load img{width:64px;border-radius:15px;margin-bottom:15px}
-.err{background:var(--redL);border:1px solid var(--redB);color:#9F1239;
-  padding:14px;border-radius:12px;font-size:13px;line-height:1.8}
-.busy{background:var(--blueL);border:1px solid #DBE7FF;color:#1E40AF;
-  padding:13px 14px;border-radius:12px;font-size:13px;margin-bottom:12px;font-weight:700}
-.busy .bar{height:4px;border-radius:99px;background:#DBE7FF;margin-top:9px;overflow:hidden}
-.busy .bar i{display:block;height:100%;width:34%;border-radius:99px;background:var(--blue);
-  animation:slide 1.5s ease-in-out infinite}
-@keyframes slide{0%{margin-left:-34%}100%{margin-left:100%}}
-.busy small{display:block;font-weight:400;font-size:11.5px;margin-top:5px;opacity:.8}
-.done{background:var(--greenL);border:1px solid #BBF7D0;color:#15803D;
-  padding:13px 14px;border-radius:12px;font-size:13px;margin-bottom:12px;font-weight:700}
-.kL{font-size:12px;color:var(--sub);font-weight:700}
-.sep{height:1px;background:var(--line);margin:13px 0}
-.kV{font-size:18px;font-weight:700;margin-top:2px}
-.err button{margin-top:11px;padding:10px 18px;border:0;border-radius:9px;background:var(--red);
-  color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
-/* 押した感触。スマホだとこれが無いと反応したか分からない */
-.cta:active,.pill:active,.err button:active,.iconbtn:active{transform:scale(.97);opacity:.9}
-.tb:active,.link:active{opacity:.6}
+.load img{width:64px;margin-bottom:15px}
 
 /* ============ PC ============ */
 @media(min-width:1000px){
-  body{padding:20px 26px 46px}
-  .wrap{max-width:1340px}
-  .hd{padding:4px 0 18px;border-bottom:1px solid var(--line);margin-bottom:20px}
-  .hd img{width:52px;height:52px;border-radius:12px}
-  .hdT{font-size:26px}.hdS{font-size:13px}
+  body{padding:22px 30px 60px}
+  .wrap{max-width:1320px}
+  .hd{padding:4px 0 18px;border-bottom:2px solid var(--ink);margin-bottom:24px}
+  .hd>img{width:46px;height:46px}
+  .hdT{font-size:24px}.hdS{font-size:12px}
   .upd,.trust{display:block}
-  .cols{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
-  .crisis{padding:24px 26px}
-  .crH{padding-right:210px}
-  .ttl{font-size:clamp(24px,2.3vw,32px)}
-  .crSub{font-size:15px;padding-right:210px}
-  .msc{width:190px;right:14px;top:10px}
-  .rows{display:grid;grid-template-columns:repeat(3,1fr);padding:0;margin-top:18px}
-  .row{display:block;border-bottom:0;border-right:1px solid var(--line);padding:14px 16px}
-  .row span{display:block}   /* ラベルを上、金額を下に積む（モックアップと同じ） */
+  .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:26px;align-items:start}
+  .crIn{padding:32px 30px 26px}
+  .ttl{font-size:27px}
+  .ttl .amt{font-size:clamp(52px,4.6vw,74px)}
+  .ttl .tail{font-size:23px}
+  .crSub{font-size:14px}
+  .msc{width:150px;right:26px;top:30px}
+  .eyebrow,.ttl,.crSub{padding-right:180px}
+  .rows{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.14)}
+  .row{display:block;border-bottom:0;border-right:1px solid rgba(255,255,255,.1);padding:15px 18px 15px 0}
+  .row span{display:block}
   .row:last-child{border-right:0}
-  .rowV{font-size:21px;margin-top:5px}
-  .cta{width:auto;padding:13px 26px;margin-left:auto}
-  .tiles{grid-template-columns:repeat(3,1fr);gap:12px}
-  .tile{padding:14px}
-  .tile .sqi{width:34px;height:34px}.tile .sqi svg{width:18px;height:18px}
-  .tileL{font-size:11.5px}.tileV{font-size:22px}
-  .card{padding:19px 20px;margin-bottom:16px}
-  .pgT{font-size:20px}
-  .fcw{display:grid;grid-template-columns:1fr 216px;gap:18px;align-items:center}
-  .ms{grid-template-columns:1fr;margin-top:0;text-align:left}
-  .msb{border-right:0;border-bottom:1px solid var(--line);padding:12px 4px}
+  .rowV{font-size:23px;margin-top:5px}
+  .cta{width:auto;margin-left:auto;padding:14px 30px}
+  .tile{padding:16px 14px}
+  .tileL{font-size:11px}.tileV{font-size:25px}
+  .pgT{font-size:21px}
+  .fcw{display:grid;grid-template-columns:1fr 210px;gap:22px;align-items:center}
+  .ms{grid-template-columns:1fr;margin-top:0;border-top:0}
+  .msb{border-right:0;border-bottom:1px solid var(--hair);padding:13px 4px}
   .msb:last-child{border-bottom:0}
-  .msV{font-size:20px}
+  .msV{font-size:22px}
   table{font-size:13px}
-  .say img{width:110px}
+  .say>img{width:130px}
   .tabs{display:none}
 }
 </style>
 </head>
 <body>
 <div class="sp" id="sp">
-  <svg class="spWave t" viewBox="0 0 390 150" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 0h390v78c-70 26-140-14-210 6S60 118 0 96z" fill="#16A34A" opacity=".07"/>
-    <path d="M0 0h390v46c-64 30-138-6-206 12S54 82 0 62z" fill="#16A34A" opacity=".05"/>
-  </svg>
-  <svg class="spWave b" viewBox="0 0 390 210" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 210V96c72-30 140 12 208-8s110-30 182-6v128z" fill="#16A34A" opacity=".10"/>
-    <path d="M0 210V140c78-26 138 10 206-8s106-22 184 2v76z" fill="#16A34A" opacity=".16"/>
-  </svg>
+
   <img class="spSym" src="assets/symbol.png" alt="" />
   <div class="spName">せつやく<i>番長</i></div>
   <div class="spTag">資金のピンチは、俺が止める。</div>
@@ -344,10 +358,8 @@ td.l.soon{color:var(--red);font-weight:700}
        動画は正方形で周りに余白があるため、拡大して余白を隠している。 -->
   <div class="spStage">
     <img class="spPoster" src="assets/mascot-body.png" alt="" />
-    <video class="spVid" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-      <source src="assets/mascot-body.webm" type="video/webm" />
-      <source src="assets/mascot-body.mp4" type="video/mp4" />
-    </video>
+    <!-- 透過webm/mp4を assets/mascot-body.webm として置けば、ここに video を戻せる。
+         ただし白フチの無い素材から作り直すこと（焼き込まれると枠に見える） -->
   </div>
 </div>
 
@@ -460,6 +472,31 @@ function api(action, params = {}) {
     s.src = GAS_URL + '?' + q.toString();
     document.head.appendChild(s);
   });
+}
+
+/* ---------- 判決ブロックの中の小さな折れ線 ----------
+   数字だけだと実感が湧かない。谷の形をその場で見せる。 */
+function spark(fc){
+  const pts = (fc && fc.points) || [];
+  if (pts.length < 2) return '';
+  const W = 320, H = 54;
+  let lo = 0, hi = 0;
+  pts.forEach(p => { lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); });
+  if (hi === lo) hi = lo + 1;
+  const X = i => W * (i / (pts.length - 1));
+  const Y = v => H - (H - 6) * ((v - lo) / (hi - lo)) - 3;
+  let line = '';
+  pts.forEach((p, i) => { line += (i ? ' L' : 'M') + X(i).toFixed(1) + ' ' + Y(p[1]).toFixed(1); });
+  const zero = Y(0);
+  let g = `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">`;
+  g += `<path d="${line} L${W} ${H} L0 ${H} Z" fill="#FF5064" opacity=".14"/>`;
+  g += `<line x1="0" y1="${zero.toFixed(1)}" x2="${W}" y2="${zero.toFixed(1)}" stroke="#FF5064" stroke-width="1" stroke-dasharray="4 4" opacity=".7"/>`;
+  g += `<path d="${line}" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>`;
+  if (fc.firstNeg){
+    const i = pts.findIndex(p => p[0] === fc.firstNeg.date);
+    if (i >= 0) g += `<circle cx="${X(i).toFixed(1)}" cy="${Y(pts[i][1]).toFixed(1)}" r="4" fill="#FFBF24"/>`;
+  }
+  return g + '</svg>';
 }
 
 /* ---------- グラフ ---------- */
@@ -601,20 +638,34 @@ function render() {
     ? (day ? `${md0(day)}に、<br>${yen(short)}不足します。` : `${yen(short)}足りません。`)
     : (due ? `${md0(due)}の引落後も<br>${yen(short)}残ります。` : `いまのところ<br>支払いは間に合っています。`);
 
+  // 不足の日までの日数。「あと何日」が一番効く情報なので最初に出す
+  const daysLeft = (() => {
+    if (!day) return null;
+    const a = new Date(ymd().replace(/-/g, '/')), b = new Date(day.replace(/-/g, '/'));
+    return Math.max(0, Math.round((b - a) / 86400000));
+  })();
+
   const crisis = `<div class="crisis ${ng ? 'ng' : 'ok'} sect" data-tab="home">
-    <img class="msc" src="assets/mascot-${ng ? 'warn' : 'ok'}.png" alt="" />
-    <div class="crH">
-      <div class="bang"><svg viewBox="0 0 24 24">${ng ? P.bang : P.check}</svg></div>
-      <div class="ttl">${ttl}</div>
+    <img class="msc" src="assets/mascot-body.png" alt="" />
+    <div class="crIn">
+      <div class="eyebrow"><i></i>${ng
+        ? (daysLeft === null ? '資金不足' : daysLeft === 0 ? '本日です' : `不足まで あと${daysLeft}日`)
+        : '当面の支払いは間に合っています'}</div>
+      <div class="ttl">${ng
+        ? `${day ? `<span class="num">${md0(day)}</span>に、` : ''}
+           <span class="amt num">${yen(short)}</span><span class="tail">たりません。</span>`
+        : `${due ? `<span class="num">${md0(due)}</span>の引落後も、` : ''}
+           <span class="amt num">${yen(short)}</span><span class="tail">残ります。</span>`}</div>
+      ${ng && day ? `<div class="crSub">${md0(day)}までに ${yen(short)} を用意するか、下の対策で不足を埋めてください。</div>` : ''}
+      ${spark(d.forecast)}
+      <div class="rows">
+        <div class="row"><span class="rowL">${esc(d.mode.main)}</span><span class="rowV">${yen(d.funds.main)}</span></div>
+        ${due ? `<div class="row"><span class="rowL">次回のカード引落（${esc(due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>`
+              : `<div class="row"><span class="rowL">次回のカード引落</span><span class="rowV">予定なし</span></div>`}
+        <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : (due ? '引落後の残高' : '見込み残高')}</span><span class="rowV">${syen(short)}</span></div>
+      </div>
+      <button class="cta" data-go="act">対策を見る${arw()}</button>
     </div>
-    ${ng && day ? `<div class="crSub">${md0(day)}までに${yen(short)}を確保してください。</div>` : ''}
-    <div class="rows">
-      <div class="row"><span class="rowL">${esc(d.mode.main)}</span><span class="rowV">${yen(d.funds.main)}</span></div>
-      ${due ? `<div class="row"><span class="rowL">次回のカード引落（${esc(due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>`
-            : `<div class="row"><span class="rowL">次回のカード引落</span><span class="rowV">予定なし</span></div>`}
-      <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : (due ? '引落後の残高' : '見込み残高')}</span><span class="rowV">${syen(short)}</span></div>
-    </div>
-    <button class="cta" data-go="act">対策を確認${arw()}</button>
   </div>`;
 
   /* --- 数字タイル --- */
@@ -676,7 +727,7 @@ function render() {
       <b>${solved ? `この対策で、${md(d.forecastBefore.firstNeg.date)}の資金不足は解消します。`
         : (d.forecast.firstNeg ? `まだ足りません。${md(d.forecast.firstNeg.date)}に ${yen(d.forecast.firstNeg.bal)} 不足します。` : '資金不足は出ません。')}</b><br>
       対策前の最低残高 ${syen(d.forecastBefore.min)}　→　対策後 ${syen(d.forecast.min)}
-      <div class="link" data-act2="clear" style="justify-content:flex-start">すべての対策を取り消す</div></div>`;
+      <div class="link" data-act2="clear">すべての対策を取り消す</div></div>`;
   }
 
   /* --- 取引タブ --- */
@@ -752,7 +803,7 @@ function render() {
       <div class="sayB">${ng
         ? 'このままだと資金がショートする。<br>今できる対策から一つずつ、確実に実行していこう！'
         : '今のところ支払いは間に合っている。<br>この調子で固定費も見直していこう！'}</div></div>
-    <img src="assets/mascot-${ng ? 'warn' : 'ok'}.png" alt="" /></div>`;
+    <img src="assets/mascot-body.png" alt="" /></div>`;
 
   document.getElementById('app').innerHTML = `
   <div class="hd">
