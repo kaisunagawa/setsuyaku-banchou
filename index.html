@@ -192,7 +192,10 @@ td.l.soon{color:var(--red);font-weight:700}
 .spTag{font-size:14px;font-weight:700;color:#334155;margin-top:7px;
   animation:up .6s .22s ease-out both}
 .spMascot{position:absolute;bottom:0;width:230px;max-width:62vw;height:auto;
+  object-fit:contain;mix-blend-mode:multiply;
   animation:up .7s .3s ease-out both, float 3.4s 1s ease-in-out infinite}
+/* 動画が再生されているときは、CSSの揺れを止める（動画側の動きと二重にしない） */
+.sp.hasVideo .spMascot{animation:up .7s .3s ease-out both}
 .spBadges{position:absolute;left:16px;bottom:24vh;display:flex;flex-direction:column;gap:14px}
 .spB{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid var(--line);
   box-shadow:0 3px 10px rgba(13,27,42,.08);display:flex;align-items:center;justify-content:center;
@@ -273,7 +276,14 @@ td.l.soon{color:var(--red);font-weight:700}
     <span class="spB"><svg viewBox="0 0 24 24" stroke="#16A34A"><path d="M4 19V11M9.5 19V5M15 19v-6M20.5 19V8"/></svg></span>
   </div>
   <div class="spMsg" id="spMsg">読み込んでいます…</div>
-  <img class="spMascot" src="assets/mascot-stand.png" alt="" />
+  <!-- 動画（Higgsfield等）を assets/ に置くと自動でそちらが再生される。
+       置いていない間は poster の静止画がそのまま出るので、何もしなくても壊れない。
+       白背景の動画でも縁が出ないよう mix-blend-mode:multiply を掛けている。 -->
+  <video class="spMascot" autoplay muted loop playsinline preload="auto"
+         poster="assets/mascot-stand.png" aria-hidden="true">
+    <source src="assets/mascot-stand.webm" type="video/webm" />
+    <source src="assets/mascot-stand.mp4" type="video/mp4" />
+  </video>
 </div>
 
 <div class="wrap" id="app"></div>
@@ -328,8 +338,15 @@ const arw = () => `<svg viewBox="0 0 24 24">${P.arrow}</svg>`;
    JSONP（scriptタグ）で GAS を呼ぶ。
    ★fetch の POST は使わない。GAS のリダイレクトの都合で JSON ではなく
      HTML のエラーページが返ることがある（実際に踏んだ）。 */
-/* ---------- スプラッシュを閉じる ---------- */
+/* ---------- スプラッシュ ---------- */
 const SP_AT = Date.now();
+/* 動画が実際に再生できたときだけ、CSSの揺れを止める */
+(function () {
+  const v = document.querySelector('.spMascot');
+  if (v && v.tagName === 'VIDEO') {
+    v.addEventListener('playing', () => document.getElementById('sp')?.classList.add('hasVideo'), { once: true });
+  }
+})();
 function hideSp() {
   const sp = document.getElementById('sp');
   if (!sp || sp.classList.contains('out')) return;
