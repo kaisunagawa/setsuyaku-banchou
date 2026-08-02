@@ -68,38 +68,40 @@ body{font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:v
 .link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ============ 危機カード ============ */
+/* ★詰めて組むこと。1画面に「危機カード＋タイル＋見通し」が入らないと、
+   いちばん見せたい不足額しか見えず、かえって使いにくくなる（実際になった）。 */
 .crisis{position:relative;border:1px solid var(--redB);background:var(--redL);
-  border-radius:16px;padding:16px;margin-bottom:12px;overflow:hidden}
+  border-radius:14px;padding:13px 14px;margin-bottom:10px;overflow:hidden}
 .crisis.ok{border-color:#BBF7D0;background:#F0FDF4}
-.crH{display:flex;gap:11px;padding-right:96px}
-.bang{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;
-  align-items:center;justify-content:center;flex:0 0 auto;margin-top:2px}
+.crH{display:flex;gap:9px;padding-right:78px}
+.bang{width:28px;height:28px;border-radius:50%;background:var(--red);display:flex;
+  align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px}
 .crisis.ok .bang{background:var(--green)}
-.bang svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.6;stroke-linecap:round}
-.ttl{font-size:19px;font-weight:700;color:var(--red);line-height:1.4;letter-spacing:-.01em}
+.bang svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.8;stroke-linecap:round}
+.ttl{font-size:17.5px;font-weight:700;color:var(--red);line-height:1.42;letter-spacing:-.02em}
 .crisis.ok .ttl{color:#15803D}
-.crSub{font-size:13px;font-weight:700;margin:9px 0 0;padding-right:96px;line-height:1.6}
-.msc{position:absolute;right:8px;top:6px;width:92px;height:auto}
-.rows{background:#fff;border:1px solid var(--line);border-radius:11px;margin-top:14px;padding:2px 13px}
-.row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
-  padding:11px 0;border-bottom:1px solid #F1F4F8}
+.crSub{font-size:12px;font-weight:700;margin:7px 0 0;padding-right:78px;line-height:1.55}
+.msc{position:absolute;right:6px;top:4px;width:80px;height:auto}
+.rows{background:#fff;border:1px solid var(--line);border-radius:10px;margin-top:11px;padding:0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 0;border-bottom:1px solid #F1F4F8}
 .row:last-child{border-bottom:0}
-.rowL{font-size:12.5px;color:var(--sub)}
-.rowV{font-size:17px;font-weight:700;white-space:nowrap}
+.rowL{font-size:11.5px;color:var(--sub);line-height:1.35}
+.rowV{font-size:15.5px;font-weight:700;white-space:nowrap}
 .row.dg .rowL{color:var(--red);font-weight:700}
-.row.dg .rowV{color:var(--red)}
-.cta{width:100%;margin-top:13px;padding:14px;border:0;border-radius:11px;background:var(--red);
-  color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+.row.dg .rowV{color:var(--red);font-size:16.5px}
+.cta{width:100%;margin-top:11px;padding:12px;border:0;border-radius:10px;background:var(--red);
+  color:#fff;font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:6px}
-.cta svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.cta svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 
-/* ============ 3つの数字タイル ============ */
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
-.tile{border:1px solid var(--line);border-radius:13px;padding:11px 11px 12px;background:#fff;min-width:0}
-.tile .sqi{width:26px;height:26px;border-radius:8px;margin-bottom:7px}
-.tile .sqi svg{width:15px;height:15px}
-.tileL{font-size:10.5px;color:var(--sub);line-height:1.4;min-height:29px}
-.tileV{font-size:17px;font-weight:700;margin-top:4px;white-space:nowrap;
+/* ============ 数字タイル（モックアップと同じ横3つ） ============ */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.tile{border:1px solid var(--line);border-radius:11px;padding:9px;background:#fff;min-width:0}
+.tile .sqi{width:22px;height:22px;border-radius:7px;margin-bottom:5px}
+.tile .sqi svg{width:13px;height:13px}
+.tileL{font-size:9.5px;color:var(--sub);line-height:1.35;min-height:26px}
+.tileV{font-size:15px;font-weight:700;margin-top:2px;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
 
 /* ============ 見通し ============ */
@@ -191,8 +193,14 @@ td.l.soon{color:var(--red);font-weight:700}
 .spName i{font-style:normal;color:var(--green)}
 .spTag{font-size:14px;font-weight:700;color:#334155;margin-top:7px;
   animation:up .6s .22s ease-out both}
-.spMascot{position:absolute;bottom:0;width:230px;max-width:62vw;height:auto;
-  object-fit:contain;mix-blend-mode:multiply;
+/* ★画面の下辺にくっつけないこと。ブランド素材の番長は胸から上の「ステッカー」で、
+   下辺に接するとキャラが見切れて見える（実際に見切れて見えた）。
+   全体が入る大きさで、下に余白を残して置く。 */
+.spMascot{width:210px;max-width:58vw;height:auto;object-fit:contain;
+  margin:auto 0 11vh;mix-blend-mode:multiply;
+  /* 素材はステッカー型で下端が直線に切れている。そのまま出すと四角く見えるのでぼかす */
+  -webkit-mask-image:linear-gradient(#000 82%, rgba(0,0,0,0));
+  mask-image:linear-gradient(#000 82%, rgba(0,0,0,0));
   animation:up .7s .3s ease-out both, float 3.4s 1s ease-in-out infinite}
 /* 動画が再生されているときは、CSSの揺れを止める（動画側の動きと二重にしない） */
 .sp.hasVideo .spMascot{animation:up .7s .3s ease-out both}
@@ -240,7 +248,7 @@ td.l.soon{color:var(--red);font-weight:700}
   .row:last-child{border-right:0}
   .rowV{font-size:21px;margin-top:5px}
   .cta{width:auto;padding:13px 26px;margin-left:auto}
-  .tiles{grid-template-columns:repeat(4,1fr);gap:12px}
+  .tiles{grid-template-columns:repeat(3,1fr);gap:12px}
   .tile{padding:14px}
   .tile .sqi{width:34px;height:34px}.tile .sqi svg{width:18px;height:18px}
   .tileL{font-size:11.5px}.tileV{font-size:22px}
@@ -493,7 +501,6 @@ function render() {
     <div class="rows">
       <div class="row"><span class="rowL">${esc(d.mode.main)}</span><span class="rowV">${yen(d.funds.main)}</span></div>
       <div class="row"><span class="rowL">次回のカード引落（${esc(d.funds.due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>
-      <div class="row"><span class="rowL">入金予定</span><span class="rowV">${d.income.active ? d.income.active + '件' : '登録なし'}</span></div>
       <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : '引落後の残高'}</span><span class="rowV">${syen(short)}</span></div>
     </div>
     <button class="cta" data-go="act">対策を確認${arw()}</button>
@@ -502,8 +509,8 @@ function render() {
   /* --- 数字タイル --- */
   const tile = (tone, icon, label, val) =>
     `<div class="tile">${sq(icon, tone)}<div class="tileL">${label}</div><div class="tileV">${val}</div></div>`;
+  // 事業資金は危機カードに出ているので、タイルは重複させず3つに絞る
   const tiles = `<div class="tiles sect" data-tab="home">
-    ${tile('blue','wallet', esc(d.mode.main), yen(d.funds.main))}
     ${tile('amber','life', esc(d.mode.sub), yen(d.funds.sub))}
     ${tile('green','down', '今月の入金<br>（取得済み分）', yen(d.month.inc))}
     ${tile('red','up', '今月の支払<br>（取得済み分）', yen(d.month.exp))}
@@ -706,7 +713,10 @@ document.addEventListener('click', async ev => {
 async function load() {
   if (!KEY) { askKey(''); return; }
   try {
-    const d = await api('stats');
+    // GAS はときどき一時的に落ちる。1回だけ黙って取り直す
+    let d;
+    try { d = await api('stats'); }
+    catch (_1) { await new Promise(r => setTimeout(r, 2500)); d = await api('stats'); }
     if (!d || !d.ok) throw new Error((d && d.error) || '取得できませんでした');
     DATA = d; render();
   } catch (e) {
