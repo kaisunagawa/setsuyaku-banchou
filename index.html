@@ -408,9 +408,14 @@ function api(action, params = {}) {
     if (params.act) q.set('act', params.act);
     if (params.payload) q.set('p', JSON.stringify(params.payload));
     const s = document.createElement('script');
+    let fired = false;
     const t = setTimeout(() => { done(); reject(new Error('時間切れです。もう一度お試しください。')); }, 240000);
     function done(){ clearTimeout(t); delete window[cb]; s.remove(); }
-    window[cb] = d => { done(); resolve(d); };
+    window[cb] = d => { fired = true; done(); resolve(d); };
+    /* ★GASはときどきJSONではなくHTMLのページを返す。その場合 script は読み込みに
+       成功するのに callback が呼ばれないので、onload で取りこぼしを検出する。
+       これが無いとタイムアウトまで待たされる（240秒固まっていた）。 */
+    s.onload = () => { if (!fired){ done(); reject(new Error('応答を読み取れませんでした')); } };
     s.onerror = () => { done(); reject(new Error('通信できませんでした')); };
     s.src = GAS_URL + '?' + q.toString();
     document.head.appendChild(s);
@@ -778,11 +783,18 @@ document.addEventListener('click', async ev => {
 async function load() {
   if (!KEY) { askKey(''); return; }
   try {
-    // GAS はときどき一時的に落ちる。1回だけ黙って取り直す
-    let d;
-    try { d = await api('stats'); }
-    catch (_1) { await new Promise(r => setTimeout(r, 2500)); d = await api('stats'); }
-    if (!d || !d.ok) throw new Error((d && d.error) || '取得できませんでした');
+    // GASはときどきJSONを返さない。実測で3回に1回ほど起きるので、黙って取り直す
+    let d, last;
+    for (let i = 0; i < 3; i++) {
+      try { d = await api('stats'); break; }
+      catch (e) {
+        last = e;
+        if (/合言葉/.test(String(e.message))) throw e;
+        await new Promise(r => setTimeout(r, 1200 * (i + 1)));
+      }
+    }
+    if (!d) throw last || new Error('取得できませんでした');
+    if (!d.ok) throw new Error(d.error || '取得できませんでした');
     DATA = d; render();
   } catch (e) {
     const m = String(e.message || '');
