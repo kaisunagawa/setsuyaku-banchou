@@ -166,6 +166,34 @@ td.l.soon{color:var(--red);font-weight:700}
 .tb svg{width:22px;height:22px;display:block;margin:0 auto 3px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tb.on{color:var(--blue);font-weight:700}
 
+/* ============ 入力シート（下から出るやつ） ============
+   prompt() は素っ気ないうえ、ホーム画面から開いたPWAでは出ないことがある。 */
+.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;
+  background:rgba(13,27,42,.42);animation:fade .2s ease-out}
+.sheet .in{width:100%;max-width:480px;background:#fff;border-radius:18px 18px 0 0;
+  padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:rise .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{transform:translateY(100%)}to{transform:none}}
+.sheet h3{font-size:17px;font-weight:700;margin-bottom:4px}
+.sheet .foot{margin:0 0 14px}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:11.5px;color:var(--sub);margin-bottom:5px;font-weight:700}
+.fld input{width:100%;padding:13px;font-family:inherit;font-size:16px;border:1px solid #CBD5E1;
+  border-radius:11px;background:#fff;color:var(--ink)}
+.fld input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.14)}
+.fld .hint{font-size:11px;color:var(--mute);margin-top:5px}
+.sheet .btns{display:flex;gap:9px;margin-top:6px}
+.sheet .btns button{flex:1;padding:14px;border:0;border-radius:11px;font-family:inherit;
+  font-size:15px;font-weight:700;cursor:pointer}
+.sheet .ok{background:var(--green);color:#fff}
+.sheet .no{background:#EEF2F6;color:#475569}
+.sheet .bad{background:var(--redL);border:1px solid var(--redB);color:#9F1239;
+  padding:10px 12px;border-radius:10px;font-size:12.5px;margin-bottom:12px}
+@media(min-width:1000px){
+  .sheet{align-items:center}
+  .sheet .in{border-radius:18px;max-width:420px;padding:24px}
+}
+
 /* ============ 合言葉／読み込み ============ */
 .gate{max-width:340px;margin:0 auto;padding:44px 0 0;text-align:center}
 .gate>img{width:82px;height:82px;border-radius:19px;border:1px solid var(--line)}
@@ -706,6 +734,53 @@ function showTab(t) {
   if (!pc) window.scrollTo(0, 0);
 }
 
+/* ---------- 入金予定の登録シート ----------
+   金額と日付は、送る前にこちら側で必ず確かめる。
+   GAS側に変な値が入ると、直すのにスプレッドシートを開くことになるため。 */
+function askIncome() {
+  const today = new Date();
+  const d0 = new Date(today.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  const el = document.createElement('div');
+  el.className = 'sheet';
+  el.innerHTML = `<div class="in">
+    <h3>入金予定を登録する</h3>
+    <div class="foot">登録すると、将来残高の見通しにすぐ反映されます。</div>
+    <div id="ierr"></div>
+    <div class="fld"><label>金額</label>
+      <input id="iamt" type="text" inputmode="numeric" placeholder="200000" />
+      <div class="hint">半角数字だけ。円マークやカンマは要りません</div></div>
+    <div class="fld"><label>入金予定日</label>
+      <input id="idate" type="date" value="${d0}" /></div>
+    <div class="fld"><label>入金元（任意）</label>
+      <input id="ilbl" type="text" placeholder="◯◯商事" /></div>
+    <div class="btns">
+      <button class="no" id="ino">やめる</button>
+      <button class="ok" id="iok">登録する</button>
+    </div></div>`;
+  document.body.appendChild(el);
+  setTimeout(() => document.getElementById('iamt').focus(), 60);
+
+  return new Promise(resolve => {
+    const close = v => { el.remove(); resolve(v); };
+    el.addEventListener('click', e => { if (e.target === el) close(null); });
+    document.getElementById('ino').onclick = () => close(null);
+    document.getElementById('iok').onclick = () => {
+      const bad = m => { document.getElementById('ierr').innerHTML = `<div class="bad">${esc(m)}</div>`; };
+      // 日本語キーボードだと全角で入る。半角に直してから読む（弾かれて入力できなかった）
+      const half = String(document.getElementById('iamt').value)
+        .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+      const amt = Number(half.replace(/[^\d]/g, ''));
+      const dt = document.getElementById('idate').value;
+      if (!amt) return bad('金額を入れてください。');
+      if (amt > 100000000) return bad('金額が大きすぎます。桁を確かめてください。');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dt)) return bad('入金予定日を選んでください。');
+      if (dt < new Date().toISOString().slice(0, 10)) return bad('過去の日付は登録できません。');
+      close({ amount: String(amt), date: dt,
+              label: document.getElementById('ilbl').value.trim() || '入金予定' });
+    };
+  });
+}
+
 /* ---------- Googleログイン ----------
    スプレッドシート側で「GoogleログインのクライアントID」が設定されたときだけ、
    サーバが needLogin を返す。設定されていない間はこの画面は一切出ない。
@@ -820,9 +895,9 @@ document.addEventListener('click', async ev => {
   else if (a === 'stopfix') { p.label = el.getAttribute('data-label'); p.amount = el.getAttribute('data-amount'); }
   else if (a === 'remove' || a === 'incok' || a === 'incng') { p.id = el.getAttribute('data-id'); }
   else if (a === 'incoming') {
-    const am = prompt('入金の金額を半角数字で入れてください（例 200000）'); if (!am) return;
-    const dt = prompt('入金予定日を入れてください（例 2026-08-20）'); if (!dt) return;
-    p.amount = am; p.date = dt; p.label = prompt('入金元（空欄でも大丈夫です）') || '入金予定';
+    const v = await askIncome();
+    if (!v) return;
+    Object.assign(p, v);
   }
   if (el.tagName === 'BUTTON') { el.disabled = true; el.style.opacity = '.5'; el.textContent = '反映中…'; }
   try { await api('sim', { act: a, payload: p }); await load(); }
