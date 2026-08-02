@@ -272,7 +272,10 @@ td.l.soon{color:var(--red);font-weight:700}
   animation:slide 1.5s ease-in-out infinite}
 @keyframes slide{0%{margin-left:-34%}100%{margin-left:100%}}
 .busy small{display:block;font-weight:400;font-size:11.5px;margin-top:5px;opacity:.8}
-.kL{font-size:12px;color:var(--sub)}
+.done{background:var(--greenL);border:1px solid #BBF7D0;color:#15803D;
+  padding:13px 14px;border-radius:12px;font-size:13px;margin-bottom:12px;font-weight:700}
+.kL{font-size:12px;color:var(--sub);font-weight:700}
+.sep{height:1px;background:var(--line);margin:13px 0}
 .kV{font-size:18px;font-weight:700;margin-top:2px}
 .err button{margin-top:11px;padding:10px 18px;border:0;border-radius:9px;background:var(--red);
   color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
@@ -693,6 +696,45 @@ function render() {
     </table></div></div>`;
 
   /* --- その他タブ --- */
+  /* --- 取り込みの状態と、次にやること --- */
+  const unkRate = d.unknown.count;
+  const howto = `<div class="sect" data-tab="etc">
+    <div class="pgT">データの取り込み</div>
+    <div class="pgS">最終更新 ${esc(d.updatedAt || '不明')}</div>
+
+    <div class="card">
+      <div class="acH">${sq('mail','green')}<div style="min-width:0">
+        <div class="acT">自動で入るもの<span class="chip">手間なし</span></div>
+        <div class="acD">住信SBIのデビット利用通知、Stripeの入金通知、マネーフォワードの通知。
+          上の更新ボタンを押すと、直近14日分のメールを取り込みます。</div>
+      </div></div>
+      <div class="foot">週に1回、押すだけで足ります。毎日押す必要はありません。</div>
+    </div>
+
+    <div class="card">
+      <div class="acH">${sq('card','amber')}<div style="min-width:0">
+        <div class="acT">CSVを貼らないと入らないもの</div>
+        <div class="acD">お店の名前です。メール通知には店名が入らないことがあり、
+          いまは <b>${unkRate}件</b> が「利用先不明」のままです。
+          金額は見通しに反映済みなので、資金予測はこのままでも正しく出ます。</div>
+      </div></div>
+      <div class="sep"></div>
+      <div class="kL">いつやるか</div>
+      <div class="acD"><b>月に1回、20日ごろ</b>で十分です。カードの締めが19日なので、
+        20日以降にまとめて貼ると1か月分が一度に片づきます。</div>
+      <div class="kL" style="margin-top:12px">やること</div>
+      <div class="acD">
+        ① 住信SBIにログインして、デビット明細をCSVでダウンロード<br>
+        ② スプレッドシートの「💳デビット明細取込」シートを開く<br>
+        ③ CSVの中身を貼り付ける<br>
+        ④ メニューから取込を実行<br>
+        ⑤ このアプリで更新ボタンを押す
+      </div>
+      <div class="foot">貼らないままでも資金ショートの警告は正しく出ます。
+        店名が必要になるのは、税理士に渡す資料を作るときです。</div>
+    </div>
+  </div>`;
+
   const etc = `<div class="sect" data-tab="etc">
     <div class="pgT">この画面について</div>
     <div class="pgS">最終更新 ${esc(d.updatedAt || '不明')}</div>
@@ -733,7 +775,7 @@ function render() {
         <div class="info">${sq('mail','blue')}<div><div class="acT" style="font-size:13px">データは自動で取得しています</div>
           <div class="acD">GmailやCSVから入出金・取引データを取り込み、見通しに反映しています。</div></div></div>
       </div>
-      ${inc}${upc}${say}${etc}
+      ${inc}${upc}${say}${howto}${etc}
     </div>
   </div>
   <div class="tabs">
@@ -880,20 +922,59 @@ document.addEventListener('click', async ev => {
     if (BUSY) return;
     BUSY = true; btn.classList.add('spin');
     const msg = document.getElementById('msg');
+    /* ★1回で全部やらないこと。まとめると3分かかり、スマホで画面を離れた時点で
+       結果を受け取れず「更新できない」ように見える（実際にそう見えていた）。
+       取り込み(約6秒)と再計算(約70秒)に分けて、それぞれの結果を出す。 */
     const t0 = Date.now();
-    // 1〜2分かかるので、止まっていないことが分かるように経過を出す
-    const steps = ['メールを取り込んでいます', '取引を集計しています', '将来残高を計算しています'];
-    const tick = setInterval(() => {
-      const s = Math.round((Date.now() - t0) / 1000);
-      msg.innerHTML = `<div class="busy">${steps[Math.min(steps.length - 1, Math.floor(s / 25))]}…
-        <div class="bar"><i></i></div><small>経過 ${s}秒 ／ 目安1〜2分。この画面を閉じても処理は続きます。</small></div>`;
-    }, 1000);
-    try { await api('update'); await load(); msg.innerHTML = ''; }
-    catch (e) {
-      msg.innerHTML = `<div class="err">更新に失敗しました：${esc(e.message)}
+    let tick = null;
+    const say = (label, note) => {
+      clearInterval(tick);
+      const start = Date.now();
+      const draw = () => {
+        const s = Math.round((Date.now() - start) / 1000);
+        msg.innerHTML = `<div class="busy">${esc(label)}…
+          <div class="bar"><i></i></div><small>${esc(note)}／経過 ${s}秒</small></div>`;
+      };
+      draw(); tick = setInterval(draw, 1000);
+    };
+    /* ★時間のかかる処理は再試行しないこと。
+       応答が届かなかっただけで、サーバ側では動き続けている。
+       再試行すると二重に走り、ロック待ちで倍以上待たされる（実際に175秒待たされた）。
+       取り込みは数秒で終わり重複も除かれるので、そこだけ再試行する。 */
+    const step = async (action, label, note, retry) => {
+      say(label, note);
+      let r, err;
+      for (let i = 0; i < (retry ? 2 : 1); i++) {
+        try { r = await api(action); break; }
+        catch (e2) { err = e2; if (retry) await new Promise(x => setTimeout(x, 1500)); }
+      }
+      if (!r) throw err || new Error('応答がありませんでした');
+      if (!r.ok) throw new Error(r.error || '失敗しました');
+      return r;
+    };
+    try {
+      const imp = await step('import', 'メールを取り込んでいます', '数秒で終わります', true);
+      let lost = false;
+      try {
+        await step('rebuild', '取引を集計して将来残高を計算しています', '1分ほどかかります', false);
+      } catch (e3) {
+        // 応答は届かなかったが、集計自体は続いている。少し待ってから結果を見に行く
+        lost = true;
+        say('集計の結果を待っています', 'もう少しかかります');
+        await new Promise(x => setTimeout(x, 20000));
+      }
+      clearInterval(tick);
+      await load();
+      const sec = Math.round((Date.now() - t0) / 1000);
+      document.getElementById('msg').innerHTML =
+        `<div class="done">${imp.added > 0
+            ? `メールから ${imp.added} 件を取り込みました。`
+            : '新しいメールはありませんでした。'}${lost ? '' : `集計を更新しました（${sec}秒）。`}</div>`;
+    } catch (e) {
+      clearInterval(tick);
+      msg.innerHTML = `<div class="err">更新できませんでした：${esc(e.message)}
         <button data-act="reload">もう一度試す</button></div>`;
     }
-    clearInterval(tick);
     btn.classList.remove('spin');
     BUSY = false;
     return;
