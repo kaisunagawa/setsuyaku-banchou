@@ -938,6 +938,14 @@ document.addEventListener('click', async ev => {
         catch (e2) { err = e2; if (retry) await new Promise(x => setTimeout(x, 1500)); }
       }
       if (!r) throw err || new Error('応答がありませんでした');
+      /* ★ほかの端末やタブの更新と重なることがある。
+         エラーにして終わらせず、終わるのを待ってから1度だけやり直す。 */
+      if (!r.ok && r.busy) {
+        say('ほかの更新が終わるのを待っています', 'そのままお待ちください');
+        await new Promise(x => setTimeout(x, 30000));
+        say(label, note);
+        r = await api(action);
+      }
       if (!r.ok) throw new Error(r.error || '失敗しました');
       return r;
     };
