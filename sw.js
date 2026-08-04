@@ -4,9 +4,10 @@
    HTML と manifest は「通信優先」。キャッシュ優先にすると、更新しても
    古い画面が出続けて、直したはずの不具合が携帯に永遠に残る（実際に残った）。
    画像は変わらないのでキャッシュ優先でよい。 */
-const SHELL = 'banchou-shell-v2';
+const SHELL = 'banchou-shell-v3';
 const FILES = ['./', './index.html', './manifest.json', './icon-192.png',
-               './assets/logo.png', './assets/mascot-warn.png', './assets/mascot-ok.png'];
+               './assets/symbol.png', './assets/mascot-body.png',
+               './assets/mascot-warn.png', './assets/mascot-ok.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

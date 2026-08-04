@@ -9,6 +9,7 @@
 <link rel="icon" href="icon-192.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="せつやく番長" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="theme-color" content="#FFFFFF" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +28,7 @@
 html{background:var(--bg)}
 body{font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:var(--ink);
   background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.5;
-  padding:12px 16px calc(74px + env(safe-area-inset-bottom));}
+  padding:calc(12px + env(safe-area-inset-top)) 16px calc(74px + env(safe-area-inset-bottom));}
 .wrap{max-width:520px;margin:0 auto}
 
 /* ============ ヘッダー ============ */
@@ -37,7 +38,14 @@ body{font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:v
 .hdS{font-size:11px;font-weight:700;color:var(--green);margin-top:1px}
 .hdR{margin-left:auto;display:flex;align-items:center;gap:10px;flex:0 0 auto}
 .hdT,.hdS{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.upd,.trust{display:none}   /* 狭い画面では出さない（その他タブに同じ情報がある） */
+.upd,.trust{display:none}   /* ヘッダー右は狭いので出さない。かわりに下の .meta 行に出す */
+.meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mute);
+  margin:-6px 0 12px}
+.meta b{font-weight:700;color:var(--sub)}
+.meta .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.meta .dot.高{background:var(--green)}
+.meta .dot.中{background:#F59E0B}
+.meta .dot.低{background:var(--red)}
 .iconbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;
   display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex:0 0 auto}
 .iconbtn svg{width:19px;height:19px;stroke:var(--ink);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -286,6 +294,7 @@ td.l.soon{color:var(--red);font-weight:700}
 /* ============ PC ============ */
 @media(min-width:1000px){
   body{padding:20px 26px 46px}
+  .meta{display:none}   /* PCはヘッダー右に同じ情報がある */
   .wrap{max-width:1340px}
   .hd{padding:4px 0 18px;border-bottom:1px solid var(--line);margin-bottom:20px}
   .hd img{width:52px;height:52px;border-radius:12px}
@@ -297,7 +306,7 @@ td.l.soon{color:var(--red);font-weight:700}
   .ttl{font-size:clamp(24px,2.3vw,32px)}
   .crSub{font-size:15px;padding-right:210px}
   .msc{width:150px;right:18px;top:12px}
-  .rows{display:grid;grid-template-columns:repeat(3,1fr);padding:0;margin-top:18px}
+  .rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));padding:0;margin-top:18px}
   .row{display:block;border-bottom:0;border-right:1px solid var(--line);padding:14px 16px}
   .row span{display:block}   /* ラベルを上、金額を下に積む（モックアップと同じ） */
   .row:last-child{border-right:0}
@@ -602,6 +611,9 @@ function render() {
       ${due ? `<div class="row"><span class="rowL">次回のカード引落（${esc(due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>`
             : `<div class="row"><span class="rowL">次回のカード引落</span><span class="rowV">予定なし</span></div>`}
       <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : (due ? '引落後の残高' : '見込み残高')}</span><span class="rowV">${syen(short)}</span></div>
+      ${(d.actions.sims || []).length ? `
+      <div class="row"><span class="rowL">対策を反映すると</span><span class="rowV" style="color:${d.forecast.firstNeg ? 'var(--red)' : 'var(--green)'}">${
+        d.forecast.firstNeg ? syen(d.forecast.firstNeg.bal) : '不足なし'}</span></div>` : ''}
     </div>
     <button class="cta" data-go="act">対策を確認${arw()}</button>
   </div>`;
@@ -631,7 +643,8 @@ function render() {
     <div class="pgS">平均月間入金 ${yen(d.avg.inc)} ／ 平均月間支出 ${yen(d.avg.exp)}<br>
       起点は${esc(d.mode.main)} ${yen(d.forecast.start)}です。</div>
     <div class="card"><div class="fcw">${chart(d.forecast)}<div class="ms">${ms}</div></div>
-      <div class="foot">${d.forecast.incomeCount
+      <div class="foot">${(d.actions.sims || []).length
+          ? `選択中の対策 ${(d.actions.sims || []).length} 件を反映した見通しです。 ` : ''}${d.forecast.incomeCount
         ? `登録済みの入金予定 ${d.forecast.incomeCount} 件を反映しています。`
         : '<b style="color:#E8192C">入金予定が登録されていないため、実際より厳しい見通しになっています。</b>'}
         カード払いの固定費は、その日ではなく引落日にまとめて反映しています。</div></div></div>`;
@@ -753,6 +766,9 @@ function render() {
       <button class="iconbtn" id="btn" title="最新データを取得"><svg viewBox="0 0 24 24">${P.refresh}</svg></button>
     </div>
   </div>
+  <div class="meta"><span class="dot ${esc(d.trust.level)}"></span>
+    <span>更新 <b>${esc((d.updatedAt || '').slice(5))}</b></span>
+    <span>／ 予測信頼度 <b>${esc(d.trust.level)}</b></span></div>
   <div id="msg"></div>
   <div class="cols">
     <div>${crisis}${tiles}${fcHome}${fcFull}${chk}</div>
