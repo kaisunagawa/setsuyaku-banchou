@@ -42,6 +42,20 @@ body{font-family:"Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;color:v
 .meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mute);
   margin:-6px 0 12px}
 .meta b{font-weight:700;color:var(--sub)}
+/* 残高の鮮度。古いほど推定のズレが大きいので、日数を数字で出す */
+.stale{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:99px;
+  background:#EEF2F6;color:var(--sub);font-size:10px;font-weight:700;vertical-align:1px}
+.stale.old{background:#FEF3C7;color:#92400E}
+.balbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--soft);border:1px solid var(--line);border-radius:13px;
+  padding:12px 14px;margin-bottom:12px;font-size:11.5px;color:var(--sub);line-height:1.7}
+.balbar>div{flex:1;min-width:180px}
+.balbar b{color:var(--ink)}
+.mini{padding:10px 15px;border:0;border-radius:9px;background:var(--ink,#0D1B2A);color:#fff;
+  font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;
+  display:flex;align-items:center;gap:6px}
+.mini svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.mini:active{transform:scale(.97);opacity:.9}
 .meta .dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
 .meta .dot.高{background:var(--green)}
 .meta .dot.中{background:#F59E0B}
@@ -590,6 +604,19 @@ function render() {
   /* --- 危機カード --- */
   /* ★カード引落日は無いことがある（その月に請求が無い・導入直後）。
      日付が空のまま日付処理に渡すと画面が真っ白になる（実際になった）。 */
+  /* 推定残高。起点が入っていないときは実残高をそのまま出す（推測で上書きしない） */
+  const estOf = (o, fallback) => {
+    const r = { show: fallback, at: '', days: 0, delta: 0, count: 0, used: false };
+    if (!o || !o.at) return r;
+    r.at = String(o.at); r.used = true;
+    r.show = o.est; r.delta = o.delta || 0; r.count = o.count || 0;
+    const t = new Date(r.at.replace(/-/g, '/'));
+    if (!isNaN(t)) r.days = Math.max(0, Math.floor((Date.now() - t.getTime()) / 86400000));
+    return r;
+  };
+  const E = { corp: estOf(d.est && d.est.corp, d.funds.main),
+              pers: estOf(d.est && d.est.pers, d.funds.sub) };
+
   const due = isDate(d.funds.due) ? d.funds.due : '';
   const negDay = d.forecast.firstNeg && isDate(d.forecast.firstNeg.date)
     ? d.forecast.firstNeg.date : '';
@@ -607,7 +634,7 @@ function render() {
     </div>
     ${ng && day ? `<div class="crSub">${md0(day)}までに${yen(short)}を確保してください。</div>` : ''}
     <div class="rows">
-      <div class="row"><span class="rowL">${esc(d.mode.main)}</span><span class="rowV">${yen(d.funds.main)}</span></div>
+      <div class="row"><span class="rowL">${esc(d.mode.main)}${E.corp.at ? `<span class="stale${E.corp.days >= 7 ? ' old' : ''}">${E.corp.days === 0 ? '今日確認' : E.corp.days + '日前に確認'}</span>` : ''}</span><span class="rowV">${yen(E.corp.show)}</span></div>
       ${due ? `<div class="row"><span class="rowL">次回のカード引落（${esc(due)}）</span><span class="rowV">−${yen(d.funds.card).slice(1)}</span></div>`
             : `<div class="row"><span class="rowL">次回のカード引落</span><span class="rowV">予定なし</span></div>`}
       <div class="row ${ng ? 'dg' : ''}"><span class="rowL">${ng ? '不足見込み額' : (due ? '引落後の残高' : '見込み残高')}</span><span class="rowV">${syen(short)}</span></div>
@@ -623,7 +650,7 @@ function render() {
     `<div class="tile">${sq(icon, tone)}<div class="tileL">${label}</div><div class="tileV">${val}</div></div>`;
   // 事業資金は危機カードに出ているので、タイルは重複させず3つに絞る
   const tiles = `<div class="tiles sect" data-tab="home">
-    ${tile('amber','life', esc(d.mode.sub), yen(d.funds.sub))}
+    ${tile('amber','life', esc(d.mode.sub), yen(E.pers.show))}
     ${tile('green','down', '今月の入金<br>（取得済み分）', yen(d.month.inc))}
     ${tile('red','up', '今月の支払<br>（取得済み分）', yen(d.month.exp))}
   </div>`;
@@ -632,6 +659,13 @@ function render() {
   const ms = d.milestones.map(m => `<div class="msb">
       <div class="msT">${m.days}日後</div><div class="msD">${esc(m.date)}</div>
       <div class="msV ${m.bal < 0 ? 'neg' : 'pos'}">${syen(m.bal)}</div></div>`).join('');
+
+  const balBar = `<div class="balbar sect" data-tab="home">
+    <div>${E.corp.used
+      ? `残高は <b>${E.corp.days === 0 ? '今日' : E.corp.days + '日前'}</b> の実残高に、その後の取引${E.corp.count + E.pers.count}件を足した推定です。`
+      : '残高は手入力の値です。銀行アプリの数字を入れると、以降は自動で足し引きします。'}</div>
+    <button class="mini" data-act="balance">残高を更新${arw()}</button>
+  </div>`;
 
   const fcHome = `<div class="card sect mob" data-tab="home">
     <div class="cardT"><svg viewBox="0 0 24 24">${P.trend}</svg>将来残高の見通し</div>
@@ -771,7 +805,7 @@ function render() {
     <span>／ 予測信頼度 <b>${esc(d.trust.level)}</b></span></div>
   <div id="msg"></div>
   <div class="cols">
-    <div>${crisis}${tiles}${fcHome}${fcFull}${chk}</div>
+    <div>${crisis}${tiles}${balBar}${fcHome}${fcFull}${chk}</div>
     <div>
       <div class="sect" data-tab="act">
         <div class="pgT">今すぐやること</div>
@@ -845,6 +879,56 @@ function askIncome() {
       if (dt < ymd()) return bad('過去の日付は登録できません。');
       close({ amount: String(amt), date: dt,
               label: document.getElementById('ilbl').value.trim() || '入金予定' });
+    };
+  });
+}
+
+/* ---------- 残高を更新 ----------
+   銀行は残高を教えてくれないので、ここだけは自分で見た数字を入れてもらう。
+   スプレッドシートを開かずに携帯から直せるようにするための画面。 */
+function askBalance(d) {
+  const cur = (d.est && d.est.corp) || {};
+  const curP = (d.est && d.est.pers) || {};
+  const el = document.createElement('div');
+  el.className = 'sheet';
+  el.innerHTML = `<div class="in">
+    <h3>残高を更新する</h3>
+    <div class="foot">銀行アプリで見た「今の残高」をそのまま入れてください。
+      これを起点に、以降の取引を足し引きして毎日の残高を出します。</div>
+    <div id="berr"></div>
+    <div class="fld"><label>${esc(d.mode.main)}</label>
+      <input id="bcorp" type="text" inputmode="numeric" placeholder="${cur.est || ''}" />
+      <div class="hint">いまの推定 ${yen(cur.est || 0)}${cur.at ? '（起点 ' + esc(String(cur.at).slice(5, 16)) + '）' : ''}</div></div>
+    <div class="fld"><label>${esc(d.mode.sub)}</label>
+      <input id="bpers" type="text" inputmode="numeric" placeholder="${curP.est || ''}" />
+      <div class="hint">いまの推定 ${yen(curP.est || 0)}</div></div>
+    <div class="btns">
+      <button class="no" id="bno">やめる</button>
+      <button class="ok" id="bok">保存する</button>
+    </div></div>`;
+  document.body.appendChild(el);
+  setTimeout(() => document.getElementById('bcorp').focus(), 60);
+
+  return new Promise(resolve => {
+    const close = v => { el.remove(); resolve(v); };
+    el.addEventListener('click', e => { if (e.target === el) close(null); });
+    document.getElementById('bno').onclick = () => close(null);
+    document.getElementById('bok').onclick = () => {
+      const num = id => {
+        const t = String(document.getElementById(id).value)
+          .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+          .replace(/[^\d]/g, '');
+        return t === '' ? null : Number(t);
+      };
+      const c = num('bcorp'), pz = num('bpers');
+      if (c === null && pz === null) {
+        document.getElementById('berr').innerHTML = '<div class="bad">どちらか一方でも入れてください。</div>';
+        return;
+      }
+      const out = {};
+      if (c !== null) out.corp = c;
+      if (pz !== null) out.pers = pz;
+      close(out);
     };
   });
 }
@@ -998,6 +1082,31 @@ document.addEventListener('click', async ev => {
   const a = el.getAttribute('data-act') || el.getAttribute('data-act2');
 
   if (a === 'reload') { location.reload(); return; }
+  if (a === 'balance') {
+    const v = await askBalance(DATA);
+    if (!v) return;
+    const m = document.getElementById('msg');
+    const before = DATA.est || {};
+    if (m) m.innerHTML = '<div class="busy">残高を保存しています…<div class="bar"><i></i></div></div>';
+    try {
+      const r = await api('setbal', { payload: v });
+      if (!r || !r.ok) throw new Error((r && r.error) || '保存できませんでした');
+      await load();
+      /* 推定がどれだけズレていたかを出す。推定をどこまで信じてよいかの手がかりになる */
+      const diffs = [];
+      if (v.corp !== undefined && before.corp && before.corp.at)
+        diffs.push(`${DATA.mode.main} ${syen(v.corp - before.corp.est)}`);
+      if (v.pers !== undefined && before.pers && before.pers.at)
+        diffs.push(`${DATA.mode.sub} ${syen(v.pers - before.pers.est)}`);
+      document.getElementById('msg').innerHTML =
+        `<div class="done">残高を更新しました。${diffs.length ? '推定とのズレ：' + diffs.join(' ／ ') : ''}</div>`;
+    } catch (e) {
+      document.getElementById('msg').innerHTML =
+        `<div class="err">保存できませんでした：${esc(e.message)}
+         <button data-act="reload">もう一度試す</button></div>`;
+    }
+    return;
+  }
   if (a === 'logout') {
     localStorage.removeItem('banchou_key');
     sessionStorage.removeItem('banchou_tok');
